@@ -2,62 +2,62 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Actions\GenerateConvocationAction;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Competition;
 use App\Models\Application;
+use App\Models\Competition;
 use App\Models\ExamCenter;
-use App\Models\Convocation;
+use Illuminate\Http\JsonResponse;
 
 class DispatchController extends Controller
 {
-    public function dispatchCandidates(Request $request, $competitionId)
-    {
-        // Require admin access (simplification for PFE)
-        // $this->authorize('competitions.manage');
+    public function __construct(private GenerateConvocationAction $generateConvocation) {}
 
+    public function dispatchCandidates(int $competitionId): JsonResponse
+    {
         $competition = Competition::findOrFail($competitionId);
-        
-        // Find applications for this competition (via job offers)
-        $applications = Application::whereHas('jobOffer', function($q) use ($competitionId) {
-            $q->where('competition_id', $competitionId);
-        })->where('status', 'accepted')->get();
+
+        $applications = Application::with(['jobOffer.competition.department', 'user', 'convocation'])
+            ->whereHas('jobOffer', fn ($q) => $q->where('competition_id', $competitionId))
+            ->where('status', 'accepted')
+            ->get();
 
         if ($applications->isEmpty()) {
-            return response()->json(['message' => 'Aucune candidature acceptée à dispatcher pour ce concours.'], 400);
+            return response()->json([
+                'status' => 'Error',
+                'message' => 'Aucune candidature acceptée à dispatcher pour ce concours.',
+            ], 400);
         }
 
         $centers = ExamCenter::all();
         if ($centers->isEmpty()) {
-            // Seed default centers if none exist
-            $centers->push(ExamCenter::create(['nom' => 'Lycée Félix Éboué', 'ville' => 'N\'Djaména', 'capacite' => 500]));
-            $centers->push(ExamCenter::create(['nom' => 'Université de Moundou', 'ville' => 'Moundou', 'capacite' => 300]));
-            $centers->push(ExamCenter::create(['nom' => 'Lycée Franco-Arabe', 'ville' => 'Abéché', 'capacite' => 200]));
+            $centers = collect([
+                ExamCenter::create(['nom' => 'Lycée Félix Éboué', 'ville' => "N'Djaména", 'capacite' => 500]),
+                ExamCenter::create(['nom' => 'Université de Moundou', 'ville' => 'Moundou', 'capacite' => 300]),
+                ExamCenter::create(['nom' => 'Lycée Franco-Arabe', 'ville' => 'Abéché', 'capacite' => 200]),
+            ]);
         }
 
-        $count = 0;
-        foreach ($applications as $app) {
-            // Simple random assignment for demonstration
-            $center = $centers->random();
-            
-            // Secure QR Code content
-            $qrData = "APP:{$app->application_number}|CAND:{$app->user_id}|CENTRE:{$center->id}";
+        $examDate = $competition->start_date && $competition->start_date->copy()->setTime(8, 0)->isFuture()
+            ? $competition->start_date->copy()->setTime(8, 0)
+            : now()->addDays(14)->setTime(8, 0);
 
-            Convocation::updateOrCreate(
-                ['application_id' => $app->id],
-                [
-                    'exam_center_id' => $center->id,
-                    'exam_date' => now()->addDays(14)->setTime(8, 0),
-                    'qr_code' => hash('sha256', $qrData),
-                    'pdf_path' => '/convocations/' . $app->application_number . '.pdf'
-                ]
-            );
+        $count = 0;
+        foreach ($applications as $index => $app) {
+            $center = $centers[$index % $centers->count()];
+            $salle = 'Salle '.chr(65 + ($index % 6));
+
+            $this->generateConvocation->execute($app, [
+                'exam_center_id' => $center->id,
+                'salle' => $salle,
+                'exam_date' => $examDate,
+            ]);
             $count++;
         }
 
         return response()->json([
-            'status' => 'success',
-            'message' => "$count candidats dispatchés et convocations générées avec succès."
+            'status' => 'Success',
+            'message' => "$count candidat(s) affecté(s) et convocations régénérées.",
         ]);
     }
 }

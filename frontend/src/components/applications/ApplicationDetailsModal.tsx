@@ -24,6 +24,7 @@ export default function ApplicationDetailsModal({ applicationId, onClose, onUpda
   const [adminNotes, setAdminNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [downloadingConvocation, setDownloadingConvocation] = useState(false);
   const [activeDocument, setActiveDocument] = useState<{ id: number; title: string } | null>(null);
 
   useEffect(() => {
@@ -72,6 +73,21 @@ export default function ApplicationDetailsModal({ applicationId, onClose, onUpda
       notify.error(err, 'Erreur lors de la mise à jour du statut.');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleDownloadConvocation = async () => {
+    if (!application) return;
+    setDownloadingConvocation(true);
+    try {
+      await applicationsApi.downloadConvocation(
+        application.id,
+        `convocation_${application.application_number || application.id}.pdf`,
+      );
+    } catch (err) {
+      notify.error(err, 'Impossible de télécharger la convocation.');
+    } finally {
+      setDownloadingConvocation(false);
     }
   };
 
@@ -174,22 +190,23 @@ export default function ApplicationDetailsModal({ applicationId, onClose, onUpda
               </div>
               
               {/* Convocation (visible par le candidat ou admin si validé) */}
-              {application.status === 'accepted' && application.convocation_url && (
+              {application.convocation_url && (
                 <div className="space-y-4">
                   <h4 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
                     <FileText size={18} className="text-blue-400" />
                     Convocation aux épreuves
                   </h4>
-                  <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 flex flex-col items-center justify-center gap-3">
-                    <p className="text-sm text-blue-800 text-center">Votre candidature a été validée. Vous pouvez maintenant télécharger votre convocation.</p>
-                    <a
-                      href={application.convocation_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                  <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex flex-col items-center justify-center gap-3">
+                    <p className="text-sm text-blue-800 text-center">Votre candidature a été validée. Téléchargez votre convocation PDF.</p>
+                    <button
+                      type="button"
+                      onClick={handleDownloadConvocation}
+                      disabled={downloadingConvocation}
                       className="btn-primary w-full text-center flex items-center justify-center gap-2"
                     >
-                      <Download size={16} /> Télécharger ma convocation (PDF)
-                    </a>
+                      <Download size={16} />
+                      {downloadingConvocation ? 'Téléchargement…' : 'Télécharger ma convocation (PDF)'}
+                    </button>
                   </div>
                 </div>
               )}

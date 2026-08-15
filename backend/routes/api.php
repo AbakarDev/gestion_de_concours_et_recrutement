@@ -138,6 +138,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/applications', [ApplicationController::class, 'store'])
         ->middleware(RoleName::route([RoleName::Candidat]));
     Route::get('/applications/{id}', [ApplicationController::class, 'show']);
+    Route::get('/applications/{id}/convocation', [ApplicationController::class, 'downloadConvocation']);
     Route::post('/applications/{id}/status', [ApplicationController::class, 'updateStatus'])
         ->middleware(RoleName::route(RoleName::applicationInstructors()));
     Route::patch('/applications/{id}/status', [ApplicationController::class, 'updateStatus'])

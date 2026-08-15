@@ -120,4 +120,51 @@ class ApplicationTest extends TestCase
             'status' => 'accepted',
         ])->assertForbidden();
     }
+
+    public function test_candidate_can_download_own_convocation(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $candidate = $this->actingAsRole(RoleName::Candidat);
+        $application = Application::factory()->create([
+            'user_id' => $candidate->id,
+            'status' => 'accepted',
+            'application_number' => 'APP-TEST',
+        ]);
+        $path = 'convocations/APP-TEST.pdf';
+        \Illuminate\Support\Facades\Storage::disk('public')->put($path, '%PDF-fake');
+        \App\Models\Convocation::query()->create([
+            'application_id' => $application->id,
+            'qr_code' => 'token-test',
+            'pdf_path' => $path,
+            'generated_at' => now(),
+            'generation_count' => 1,
+        ]);
+
+        $this->get("/api/applications/{$application->id}/convocation")
+            ->assertOk();
+    }
+
+    public function test_jury_cannot_download_convocation(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+
+        $application = Application::factory()->create([
+            'status' => 'accepted',
+            'anonymat_number' => 'ANON-1',
+        ]);
+        $path = 'convocations/secret.pdf';
+        \Illuminate\Support\Facades\Storage::disk('public')->put($path, '%PDF-fake');
+        \App\Models\Convocation::query()->create([
+            'application_id' => $application->id,
+            'qr_code' => 'token-jury',
+            'pdf_path' => $path,
+            'generated_at' => now(),
+            'generation_count' => 1,
+        ]);
+
+        $this->actingAsRole(RoleName::Jury);
+        $this->getJson("/api/applications/{$application->id}/convocation")
+            ->assertForbidden();
+    }
 }

@@ -3,57 +3,78 @@
 namespace App\Actions;
 
 use App\Models\Application;
-use App\Models\Convocation;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-
 use App\Models\AuditLog;
+use App\Models\Convocation;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class GenerateConvocationAction extends BaseAction
 {
-    public function execute(Application $application): Convocation
+    /**
+     * @param  array{exam_center_id?: int|null, salle?: string|null, exam_date?: \DateTimeInterface|null}  $assignment
+     */
+    public function execute(Application $application, array $assignment = []): Convocation
     {
-        $application->loadMissing(['jobOffer.competition', 'user']);
+        $application->loadMissing(['jobOffer.competition.department', 'user']);
 
-        // On génère un jeton unique signé pour vérifier l'authenticité
-        $token = hash_hmac('sha256', $application->id . '|' . $application->application_number . '|' . now()->timestamp, config('app.key'));
+        $existing = Convocation::where('application_id', $application->id)->first();
 
-        $pdfPath = 'convocations/' . $application->application_number . '_' . time() . '.pdf';
+        $token = $existing?->qr_code
+            ?? hash_hmac('sha256', $application->id.'|'.$application->application_number.'|'.now()->timestamp, config('app.key'));
 
-        // Créer/mettre à jour l'entrée dans la BDD
+        $pdfPath = 'convocations/'.$application->application_number.'_'.time().'.pdf';
+
+        $examDate = $assignment['exam_date']
+            ?? $existing?->exam_date
+            ?? $this->defaultExamDate($application);
+
         $convocation = Convocation::updateOrCreate(
             ['application_id' => $application->id],
             [
                 'qr_code' => $token,
                 'pdf_path' => $pdfPath,
-                'exam_center_id' => null, // À renseigner par le dispatch
-                'salle' => null, // À renseigner par le dispatch
-                'exam_date' => $application->jobOffer->competition->start_date ?? now(),
+                'exam_center_id' => $assignment['exam_center_id'] ?? $existing?->exam_center_id,
+                'salle' => $assignment['salle'] ?? $existing?->salle,
+                'exam_date' => $examDate,
                 'generated_at' => now(),
+                'generation_count' => ($existing?->generation_count ?? 0) + 1,
             ]
         );
-        $convocation->increment('generation_count');
+        $convocation->load('examCenter');
 
-        // Génération du QR Code contenant l'URL de vérification
-        // L'URL de vérification doit être absolue (ex: https://domaine.com/api/v1/convocations/verify/TOKEN)
-        $verifyUrl = URL::to('/api/convocations/verify/' . $token);
-        
-        $qrCode = base64_encode(QrCode::format('svg')->size(150)->generate($verifyUrl));
-        
+        $verifyUrl = URL::to('/api/convocations/verify/'.$token);
+        $qrCode = base64_encode(QrCode::format('svg')->size(140)->generate($verifyUrl));
+
         $pdf = Pdf::loadView('pdf.convocation', [
             'application' => $application,
             'convocation' => $convocation,
             'qrCode' => $qrCode,
-            'verifyUrl' => $verifyUrl
+            'verifyUrl' => $verifyUrl,
         ]);
 
         Storage::disk('public')->put($pdfPath, $pdf->output());
 
+        if ($existing?->pdf_path && $existing->pdf_path !== $pdfPath) {
+            Storage::disk('public')->delete($existing->pdf_path);
+        }
+
         AuditLog::record('convocation.generated', $convocation);
 
-        return $convocation;
+        return $convocation->fresh('examCenter');
+    }
+
+    private function defaultExamDate(Application $application): \DateTimeInterface
+    {
+        $start = $application->jobOffer?->competition?->start_date;
+        if ($start) {
+            $atEight = $start->copy()->setTime(8, 0);
+            if ($atEight->isFuture()) {
+                return $atEight;
+            }
+        }
+
+        return now()->addDays(14)->setTime(8, 0);
     }
 }

@@ -111,6 +111,29 @@ class ApplicationController extends Controller
         return $this->successResponse(new ApplicationResource($application));
     }
 
+    public function downloadConvocation(int $id)
+    {
+        $application = $this->applicationService->getById($id);
+        if (! $application) {
+            return $this->errorResponse('Candidature introuvable.', 404);
+        }
+
+        $this->authorize('view', $application);
+
+        if (auth()->user()->isJuryOnly()) {
+            return $this->errorResponse('Le jury ne peut pas télécharger une convocation nominative.', 403);
+        }
+
+        $path = $application->convocation?->pdf_path;
+        if (! $path || ! \Illuminate\Support\Facades\Storage::disk('public')->exists($path)) {
+            return $this->errorResponse('Convocation introuvable.', 404);
+        }
+
+        $filename = 'convocation_'.($application->application_number ?? $application->id).'.pdf';
+
+        return \Illuminate\Support\Facades\Storage::disk('public')->download($path, $filename);
+    }
+
     /**
      * @OA\Patch(
      *     path="/api/applications/{id}/status",

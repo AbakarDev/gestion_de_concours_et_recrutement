@@ -10,4 +10,9 @@ class ExamCenter extends Model
     use HasFactory;
 
     protected $fillable = ['nom', 'ville', 'capacite'];
+
+    public function getNameAttribute(): ?string
+    {
+        return $this->attributes['nom'] ?? null;
+    }
 }

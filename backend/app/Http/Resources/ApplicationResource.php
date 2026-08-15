@@ -38,7 +38,7 @@ class ApplicationResource extends JsonResource
             'scores' => $this->whenLoaded('scores'),
             'convocation_url' => $isJury ? null : (
                 $this->relationLoaded('convocation') && $this->convocation
-                    ? asset('storage/' . $this->convocation->pdf_path)
+                    ? "/applications/{$this->id}/convocation"
                     : null
             ),
             'status_history' => $this->whenLoaded('statusHistory', function () use ($isJury) {

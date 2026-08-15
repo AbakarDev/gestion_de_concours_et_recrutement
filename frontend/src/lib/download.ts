@@ -12,7 +12,15 @@ function filenameFromDisposition(header: string | undefined, fallback: string): 
 
 export async function downloadExport(path: string, fallbackName: string): Promise<void> {
   const res = await api.get(path, { responseType: 'blob' });
-  const blob = new Blob([res.data], { type: (res.headers['content-type'] as string) || 'application/octet-stream' });
+  const contentType = (res.headers['content-type'] as string) || '';
+
+  if (contentType.includes('application/json')) {
+    const text = await (res.data as Blob).text();
+    const json = JSON.parse(text);
+    throw new Error(json.message || 'Téléchargement impossible.');
+  }
+
+  const blob = new Blob([res.data], { type: contentType || 'application/octet-stream' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

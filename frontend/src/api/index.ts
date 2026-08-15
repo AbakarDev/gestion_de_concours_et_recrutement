@@ -1,5 +1,6 @@
 import axios from 'axios';
 import api from '../lib/axios';
+import { downloadExport } from '../lib/download';
 import type { ApiResponse, PaginatedResponse, User, Competition, JobOffer, Application, ApplicationDocument } from '../types';
 
 export { api };
@@ -61,6 +62,8 @@ export const applicationsApi = {
   create: (data: { job_offer_id: number }) => api.post<ApiResponse<Application>>('/applications', data),
   updateStatus: (id: number, data: { status: string; admin_notes?: string; rejection_reason?: string }) => 
     api.patch<ApiResponse<Application>>(`/applications/${id}/status`, data),
+  downloadConvocation: (id: number, filename?: string) =>
+    downloadExport(`/applications/${id}/convocation`, filename || `convocation_${id}.pdf`),
 };
 
 export const documentsApi = {
