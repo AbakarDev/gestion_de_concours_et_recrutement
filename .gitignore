@@ -1,0 +1,74 @@
+# ── Dépendances ──────────────────────────────────────────
+node_modules/
+vendor/
+frontend/node_modules/
+backend/vendor/
+
+# ── Secrets & environnement ──────────────────────────────
+.env
+.env.*
+!.env.example
+!.env.*.example
+frontend/.env.local
+backend/.env
+backend/.env.backup
+backend/.env.production
+
+# ── Bases de données locales ─────────────────────────────
+pgdata/
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+backend/database/*.sqlite*
+
+# ── Builds & caches ──────────────────────────────────────
+dist/
+build/
+frontend/dist/
+backend/public/build
+backend/public/hot
+backend/public/storage
+.phpunit.result.cache
+.phpunit.cache
+backend/.phpunit.result.cache
+backend/bootstrap/cache/*.php
+!backend/bootstrap/cache/.gitignore
+backend/storage/logs/*.log
+backend/storage/framework/cache/data/*
+!backend/storage/framework/cache/data/.gitignore
+backend/storage/framework/sessions/*
+!backend/storage/framework/sessions/.gitignore
+backend/storage/framework/views/*
+!backend/storage/framework/views/.gitignore
+backend/storage/framework/testing/*
+!backend/storage/framework/testing/.gitignore
+backend/storage/*.key
+
+# ── Logs & fichiers temporaires ──────────────────────────
+*.log
+*.tmp
+*.temp
+composer_output.txt
+npm-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# ── IDE / OS ─────────────────────────────────────────────
+.idea/
+.vscode/
+.fleet/
+.zed/
+.nova/
+*.swp
+*.swo
+.cursor/
+
+# ── Divers ───────────────────────────────────────────────
+coverage/
+.turbo/
+.cache/
+*.pid
+auth.json
+Homestead.json
+Homestead.yaml
