@@ -21,14 +21,20 @@ class Application extends Model
         'status',
         'admin_notes',
         'rejection_reason',
+        'motivation_objet',
+        'motivation_corps',
+        'cv_pdf_path',
+        'letter_pdf_path',
+        'dossier_frozen_at',
         'submitted_at',
     ];
 
     protected function casts(): array
     {
         return [
-            'status'       => ApplicationStatus::class,
-            'submitted_at' => 'datetime',
+            'status'            => ApplicationStatus::class,
+            'submitted_at'      => 'datetime',
+            'dossier_frozen_at' => 'datetime',
         ];
     }
 
@@ -86,6 +92,8 @@ class Application extends Model
      */
     public function isPaymentConfirmed(): bool
     {
+        $this->loadMissing(['jobOffer.competition', 'payment']);
+
         if (!$this->jobOffer) {
             return true;
         }

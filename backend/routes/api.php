@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\RankingController;
 use App\Http\Controllers\Api\DocumentController;
 use App\Http\Controllers\Api\ExportController;
 use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\CandidateDossierController;
 
 /*
 |--------------------------------------------------------------------------
@@ -133,6 +134,31 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/job-offers/{jobOffer}/apply', [ApplicationController::class, 'store'])
         ->middleware(RoleName::route([RoleName::Candidat]));
 
+    // Dossier administratif du candidat (CV généré, cursus, pièces)
+    Route::get('/document-types', [CandidateDossierController::class, 'types']);
+    Route::get('/candidate/dossier', [CandidateDossierController::class, 'show'])
+        ->middleware(RoleName::route([RoleName::Candidat]));
+    Route::put('/candidate/dossier', [CandidateDossierController::class, 'update'])
+        ->middleware(RoleName::route([RoleName::Candidat]));
+    Route::post('/candidate/dossier/photo', [CandidateDossierController::class, 'uploadPhoto'])
+        ->middleware(RoleName::route([RoleName::Candidat]));
+    Route::get('/candidate/dossier/photo', [CandidateDossierController::class, 'showPhoto'])
+        ->middleware(RoleName::route([RoleName::Candidat]));
+    Route::get('/candidate/dossier/cv', [CandidateDossierController::class, 'downloadCv'])
+        ->middleware(RoleName::route([RoleName::Candidat]));
+    Route::post('/candidate/dossier/diplomas', [CandidateDossierController::class, 'storeDiploma'])
+        ->middleware(RoleName::route([RoleName::Candidat]));
+    Route::put('/candidate/dossier/diplomas/{id}', [CandidateDossierController::class, 'updateDiploma'])
+        ->middleware(RoleName::route([RoleName::Candidat]));
+    Route::delete('/candidate/dossier/diplomas/{id}', [CandidateDossierController::class, 'destroyDiploma'])
+        ->middleware(RoleName::route([RoleName::Candidat]));
+    Route::post('/candidate/dossier/experiences', [CandidateDossierController::class, 'storeExperience'])
+        ->middleware(RoleName::route([RoleName::Candidat]));
+    Route::put('/candidate/dossier/experiences/{id}', [CandidateDossierController::class, 'updateExperience'])
+        ->middleware(RoleName::route([RoleName::Candidat]));
+    Route::delete('/candidate/dossier/experiences/{id}', [CandidateDossierController::class, 'destroyExperience'])
+        ->middleware(RoleName::route([RoleName::Candidat]));
+
     // Candidatures
     Route::get('/applications', [ApplicationController::class, 'index']);
     Route::post('/applications', [ApplicationController::class, 'store'])
@@ -152,6 +178,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Paiement — propriétaire du dossier contrôlé dans le contrôleur
     Route::post('/payments/initiate', [PaymentController::class, 'initiate'])
+        ->middleware(RoleName::route([RoleName::Candidat, RoleName::SuperAdmin]));
+    Route::post('/payments/simulate', [PaymentController::class, 'simulate'])
         ->middleware(RoleName::route([RoleName::Candidat, RoleName::SuperAdmin]));
 
     // Classement & stats

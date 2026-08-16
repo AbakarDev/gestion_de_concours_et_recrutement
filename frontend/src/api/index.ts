@@ -1,7 +1,7 @@
 import axios from 'axios';
 import api from '../lib/axios';
 import { downloadExport } from '../lib/download';
-import type { ApiResponse, PaginatedResponse, User, Competition, JobOffer, Application, ApplicationDocument } from '../types';
+import type { ApiResponse, PaginatedResponse, User, Competition, JobOffer, Application, ApplicationDocument, DossierPayload, DocumentTypeCatalog } from '../types';
 
 export { api };
 
@@ -59,7 +59,7 @@ export const jobOffersApi = {
 export const applicationsApi = {
   list: (params?: any) => api.get<PaginatedResponse<Application>>('/applications', { params }),
   get: (id: number) => api.get<ApiResponse<Application>>(`/applications/${id}`),
-  create: (data: { job_offer_id: number }) => api.post<ApiResponse<Application>>('/applications', data),
+  create: (data: { job_offer_id: number; motivation_objet?: string; motivation_corps?: string }) => api.post<ApiResponse<Application>>('/applications', data),
   updateStatus: (id: number, data: { status: string; admin_notes?: string; rejection_reason?: string }) => 
     api.patch<ApiResponse<Application>>(`/applications/${id}/status`, data),
   downloadConvocation: (id: number, filename?: string) =>
@@ -68,12 +68,8 @@ export const applicationsApi = {
 
 export const documentsApi = {
   list: () => api.get<ApiResponse<ApplicationDocument[]>>('/documents'),
-  upload: (data: FormData) => 
-    api.post<ApiResponse<ApplicationDocument>>('/documents/upload', data, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    }),
+  upload: (data: FormData) =>
+    api.post<ApiResponse<ApplicationDocument>>('/documents/upload', data),
   viewBlob: async (id: number) => {
     const res = await api.get(`/documents/${id}/view`, { responseType: 'blob' });
     return URL.createObjectURL(new Blob([res.data], { type: res.headers['content-type'] as string }));
@@ -90,6 +86,41 @@ export const documentsApi = {
     setTimeout(() => window.URL.revokeObjectURL(url), 1000);
   },
   delete: (id: number) => api.delete<ApiResponse<null>>(`/documents/${id}`),
+};
+
+export const dossierApi = {
+  types: () => api.get<ApiResponse<DocumentTypeCatalog[]>>('/document-types'),
+  get: (jobOfferId?: number) =>
+    api.get<ApiResponse<DossierPayload>>('/candidate/dossier', {
+      params: jobOfferId ? { job_offer_id: jobOfferId } : undefined,
+    }),
+  update: (data: Record<string, unknown>) =>
+    api.put<ApiResponse<DossierPayload>>('/candidate/dossier', data),
+  uploadPhoto: (file: File) => {
+    const form = new FormData();
+    form.append('photo', file, file.name);
+    return api.post<ApiResponse<DossierPayload>>('/candidate/dossier/photo', form);
+  },
+  viewPhoto: async () => {
+    const res = await api.get('/candidate/dossier/photo', { responseType: 'blob' });
+    return URL.createObjectURL(new Blob([res.data], { type: res.headers['content-type'] as string }));
+  },
+  downloadCv: async () => {
+    const res = await api.get('/candidate/dossier/cv', { responseType: 'blob' });
+    const url = window.URL.createObjectURL(new Blob([res.data], { type: 'application/pdf' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'CV_administratif.pdf';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+  },
+  addDiploma: (form: FormData) => api.post('/candidate/dossier/diplomas', form),
+  deleteDiploma: (id: number) => api.delete(`/candidate/dossier/diplomas/${id}`),
+  addExperience: (data: Record<string, unknown>) => api.post('/candidate/dossier/experiences', data),
+  updateExperience: (id: number, data: Record<string, unknown>) => api.put(`/candidate/dossier/experiences/${id}`, data),
+  deleteExperience: (id: number) => api.delete(`/candidate/dossier/experiences/${id}`),
 };
 
 
@@ -137,6 +168,13 @@ export const publicApi = {
 
 export const adminStatsApi = {
   getDashboard: () => api.get<ApiResponse<any>>('/admin/dashboard-stats'),
+};
+
+export const paymentsApi = {
+  initiate: (data: { application_id: number; phone_number: string }) =>
+    api.post<ApiResponse<{ transaction_ref: string }>>('/payments/initiate', data),
+  simulate: (data: { application_id: number }) =>
+    api.post<ApiResponse<null>>('/payments/simulate', data),
 };
 
 export const notificationsApi = {

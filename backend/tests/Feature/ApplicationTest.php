@@ -77,6 +77,7 @@ class ApplicationTest extends TestCase
         $admin->assignRole(RoleName::Administrateur->value);
 
         $this->actingAsRole(RoleName::Candidat);
+        $this->completeMinisterialDossier(auth()->user());
         $competition = \App\Models\Competition::factory()->open()->create();
         $offer = \App\Models\JobOffer::factory()->published()->create([
             'competition_id' => $competition->id,

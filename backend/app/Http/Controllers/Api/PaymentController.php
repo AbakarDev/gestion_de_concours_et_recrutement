@@ -6,11 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\Payment;
 use App\Models\AuditLog;
+use App\Services\Payment\MockMobileMoneyGateway;
 use App\Services\Payment\PaymentGatewayInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class PaymentController extends Controller
 {
@@ -146,5 +146,46 @@ class PaymentController extends Controller
         });
 
         return response()->json(['message' => 'Webhook traité avec succès.']);
+    }
+
+    /**
+     * Simulation du callback opérateur (passerelle mock uniquement).
+     * En production, seul le webhook signé de l'opérateur confirme le paiement.
+     */
+    public function simulate(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'application_id' => 'required|exists:applications,id',
+        ]);
+
+        $application = Application::with('payment')->findOrFail($validated['application_id']);
+
+        if ($application->user_id !== $request->user()->id
+            && ! $request->user()->hasRole(\App\Enums\RoleName::SuperAdmin->value)) {
+            return response()->json(['message' => 'Accès refusé.'], 403);
+        }
+
+        if (! $this->paymentGateway instanceof MockMobileMoneyGateway) {
+            return response()->json(['message' => 'La simulation n\'est disponible qu\'avec la passerelle mock.'], 422);
+        }
+
+        $payment = $application->payment;
+        if (! $payment) {
+            return response()->json(['message' => 'Initiez d\'abord le paiement Mobile Money.'], 422);
+        }
+
+        if ($payment->isConfirmed()) {
+            return response()->json(['message' => 'Cette candidature est déjà payée.'], 422);
+        }
+
+        $payload = [
+            'transaction_ref' => $payment->transaction_ref,
+            'status' => 'successful',
+        ];
+
+        $webhook = Request::create('/api/payments/mock-webhook', 'POST', $payload);
+        $webhook->headers->set('X-Webhook-Signature', $this->paymentGateway->signWebhook($payload));
+
+        return $this->webhook($webhook);
     }
 }

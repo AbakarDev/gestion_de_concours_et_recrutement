@@ -34,6 +34,10 @@ class JobOfferResource extends JsonResource
             'positions_count' => $this->positions_count,
             'location' => $this->location,
             'requirements' => $this->requirements,
+            'required_documents' => $this->when(
+                $this->relationLoaded('competition') && $this->competition,
+                fn () => \App\Enums\DocumentType::normalizeList($this->competition->required_documents ?? [])
+            ),
             'fee_required' => (bool) $this->fee_required,
             'fee_amount' => $this->fee_amount,
             'closing_date' => $this->closing_date?->format('Y-m-d'),

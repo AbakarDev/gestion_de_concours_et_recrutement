@@ -406,10 +406,10 @@ La sidebar n’affiche **que** les menus autorisés (`AdminLayout` filtre `navIt
 | Page | Rôle |
 |---|---|
 | Tableau de bord | Compteurs (candidatures, concours, offres) |
-| Offres | Postuler + pièce jointe optionnelle |
-| Mes candidatures | Suivi des statuts (`StatusBadge`) |
-| Documents | Téléversement PDF/JPG/PNG (max 5 Mo), aperçu, suppression |
-| Profil | Informations personnelles |
+| Offres | Dépôt d’un **dossier ministériel complet** (pas une pièce optionnelle). Si l’avis exige des frais, paiement mock après le dépôt. |
+| Mes candidatures | Suivi des statuts (`StatusBadge`), motif de rejet, paiement si impayé |
+| Pièces justificatives | Catalogue ministériel (CNI, diplôme, casier…) — le CV et la lettre ne s’uploadent pas |
+| Mon dossier | État civil, photo d’identité, cursus, expériences, **CV administratif généré** |
 
 ### 7.3 Espace administration
 
@@ -556,8 +556,10 @@ Le 500 « `table scores has no column named integrity_hash` » = migration non a
 ### 11.2 Paiement (mock)
 
 `POST /api/payments/initiate` — Candidat propriétaire (ou SuperAdmin).  
-Webhook public `POST /api/payments/mock-webhook` pour simuler le callback opérateur.  
-Signature HMAC du webhook dans le mock (`verifyWebhookSignature`).
+Webhook public `POST /api/payments/mock-webhook` : callback opérateur, **signature HMAC** (`X-Webhook-Signature`).  
+Simulation démo : `POST /api/payments/simulate` (même HMAC, passerelle mock uniquement).
+
+**Règle :** si l’avis a `fee_required`, l’administrateur **ne peut pas** passer le dossier en évaluation / accepté tant que `payments.status = confirmed`. Le rejet reste possible. La méthode `Application::isPaymentConfirmed()` est appelée dans `ApplicationService::updateStatus`.
 
 ### 11.3 Convocation & QR
 
@@ -652,9 +654,9 @@ Mot de passe commun : `password`
 **Scénario de démo conseillé (8–10 min)**
 
 1. Landing (mode clair, navy).
-2. Login **Responsable** → créer / publier un concours + une offre.
-3. Login **Candidat** → postuler + document.
-4. Login **Administrateur** → accepter le dossier.
+2. Login **Responsable** → créer / publier un concours + une offre (cocher les pièces ministérielles ; frais facultatifs).
+3. Login **Candidat** (`candidat@test.td`) → **Mon dossier** (état civil, photo JPG/PNG, diplôme + scan, pièces) → Offres → déposer. Si frais : bouton « Payer via Mobile Money (simulation) ».
+4. Login **Administrateur** → instruire : refusé si impayé ; accepter seulement dossier payé / gratuit.
 5. Login **Jury** → montrer que le nom n’apparaît pas → noter → toast HMAC.
 6. Classement.
 7. SuperAdmin → page Utilisateurs (preuve que le candidat n’y a pas accès).

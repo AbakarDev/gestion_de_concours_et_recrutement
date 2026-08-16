@@ -194,12 +194,19 @@ class ApplicationController extends Controller
         $this->authorize('create', \App\Models\Application::class);
 
         $validated = $request->validate([
-            'job_offer_id' => 'required|exists:job_offers,id'
+            'job_offer_id' => 'required|exists:job_offers,id',
+            'motivation_objet' => 'nullable|string|max:255',
+            'motivation_corps' => 'nullable|string|min:200|max:4000',
         ]);
 
-        $application = $submitApplicationAction->execute($request->user(), (int) $validated['job_offer_id']);
+        $application = $submitApplicationAction->execute(
+            $request->user(),
+            (int) $validated['job_offer_id'],
+            $validated['motivation_objet'] ?? null,
+            $validated['motivation_corps'] ?? null,
+        );
 
-        return $this->successResponse(new ApplicationResource($application->load(['user', 'jobOffer.competition'])), 'Candidature soumise avec succès.', 201);
+        return $this->successResponse(new ApplicationResource($application->load(['user', 'jobOffer.competition', 'payment'])), 'Candidature soumise avec succès.', 201);
     }
 
     public function storeScore(Request $request, $id, \App\Actions\RecordScoreAction $recordScoreAction): JsonResponse

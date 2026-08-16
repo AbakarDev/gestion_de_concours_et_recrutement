@@ -55,4 +55,9 @@ class JobOfferRepository extends BaseRepository implements JobOfferRepositoryInt
 
         return $query->paginate($perPage);
     }
+
+    public function find(int $id): ?JobOffer
+    {
+        return $this->model->with('competition')->find($id);
+    }
 }

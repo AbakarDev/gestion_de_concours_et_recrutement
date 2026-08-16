@@ -106,8 +106,8 @@ export default function CandidateDashboard() {
           <h3 className="text-sm font-semibold text-slate-800 mb-3">Actions rapides</h3>
           {[
             { to: '/candidate/offers', icon: Briefcase, title: 'Parcourir les offres', desc: 'Postes et concours publiés' },
-            { to: '/candidate/documents', icon: UploadCloud, title: 'Gérer mes documents', desc: 'CV, diplômes, pièce d’identité' },
-            { to: '/candidate/profile', icon: User, title: 'Compléter mon profil', desc: 'Informations personnelles' },
+            { to: '/candidate/documents', icon: UploadCloud, title: 'Pièces justificatives', desc: 'CNI, diplômes, casier, acte de naissance' },
+            { to: '/candidate/profile', icon: User, title: 'Constituer mon dossier', desc: 'État civil, cursus et CV officiel' },
           ].map(({ to, icon: Icon, title, desc }) => (
             <Link key={to} to={to} className="flex items-center gap-4 p-3.5 rounded-xl bg-slate-50 hover:bg-blue-50/60 border border-slate-100 hover:border-blue-100 transition-all group">
               <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-blue-800 flex items-center justify-center shrink-0">

@@ -31,7 +31,7 @@ class CompetitionDTO
             reference: $request->validated('reference'),
             description: $request->validated('description'),
             quota: $request->validated('quota'),
-            required_documents: $request->validated('required_documents'),
+            required_documents: \App\Enums\DocumentType::normalizeList($request->validated('required_documents')),
             start_date: $request->validated('start_date'),
             end_date: $request->validated('end_date'),
             ministry: $request->validated('ministry'),

@@ -53,7 +53,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['"Outfit"', 'sans-serif'],
+        sans: ['Inter', 'Liberation Sans', 'Segoe UI', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         'glass': '0 4px 30px rgba(27, 79, 138, 0.08)',

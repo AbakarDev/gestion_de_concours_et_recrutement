@@ -6,7 +6,6 @@ use App\Enums\ApplicationStatus;
 use App\Models\Application;
 use App\Services\ApplicationService;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 
 class UpdateApplicationStatusAction extends BaseAction
 {
@@ -26,16 +25,6 @@ class UpdateApplicationStatusAction extends BaseAction
         ?string $rejectionReason,
     ): Application {
         $application->loadMissing(['jobOffer.competition', 'payment']);
-
-        if (in_array($status, [
-            ApplicationStatus::ACCEPTED,
-            ApplicationStatus::UNDER_REVIEW,
-            ApplicationStatus::EVALUATED,
-        ], true) && ! $application->isPaymentConfirmed()) {
-            throw ValidationException::withMessages([
-                'status' => ["Le paiement requis pour cette candidature n'est pas confirmé. L'instruction est bloquée."],
-            ]);
-        }
 
         return DB::transaction(function () use ($application, $status, $adminNotes, $rejectionReason) {
             $updated = $this->applicationService->updateStatus(

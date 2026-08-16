@@ -220,6 +220,7 @@ class CriticalBusinessRulesTest extends TestCase
     public function test_cannot_apply_twice_to_the_same_offer(): void
     {
         $user = $this->actingAsRole(RoleName::Candidat);
+        $this->completeMinisterialDossier($user);
         $competition = Competition::factory()->open()->create();
         $offer = JobOffer::factory()->published()->create([
             'competition_id' => $competition->id,
@@ -262,5 +263,78 @@ class CriticalBusinessRulesTest extends TestCase
             'to_status' => 'accepted',
         ]);
         $this->assertNotEmpty($response->json('data.status_history'));
+    }
+
+    public function test_instruction_is_blocked_until_payment_is_confirmed(): void
+    {
+        $this->actingAsRole(RoleName::Administrateur);
+
+        $competition = Competition::factory()->open()->create([
+            'fee_required' => true,
+            'fee_amount' => 5000,
+        ]);
+        $offer = JobOffer::factory()->published()->create([
+            'competition_id' => $competition->id,
+            'fee_required' => true,
+            'fee_amount' => 5000,
+        ]);
+        $application = Application::factory()->create([
+            'job_offer_id' => $offer->id,
+            'status' => 'submitted',
+        ]);
+
+        $this->patchJson("/api/applications/{$application->id}/status", [
+            'status' => 'accepted',
+            'admin_notes' => 'Dossier complet.',
+        ])->assertStatus(422)
+            ->assertJsonValidationErrors(['payment']);
+
+        \App\Models\Payment::create([
+            'application_id' => $application->id,
+            'montant' => 5000,
+            'provider' => 'mobile_money',
+            'transaction_ref' => 'MOCK_TXN_LOCK_TEST',
+            'status' => 'confirmed',
+            'confirmed_at' => now(),
+        ]);
+
+        $this->patchJson("/api/applications/{$application->id}/status", [
+            'status' => 'accepted',
+            'admin_notes' => 'Dossier complet.',
+        ])->assertOk()
+            ->assertJsonPath('data.status', 'accepted');
+    }
+
+    public function test_candidate_can_confirm_mock_mobile_money_payment(): void
+    {
+        $user = $this->actingAsRole(RoleName::Candidat);
+        $competition = Competition::factory()->open()->create([
+            'fee_required' => true,
+            'fee_amount' => 2500,
+        ]);
+        $offer = JobOffer::factory()->published()->create([
+            'competition_id' => $competition->id,
+            'fee_required' => true,
+            'fee_amount' => 2500,
+        ]);
+        $application = Application::factory()->create([
+            'user_id' => $user->id,
+            'job_offer_id' => $offer->id,
+            'status' => 'submitted',
+        ]);
+
+        $this->postJson('/api/payments/initiate', [
+            'application_id' => $application->id,
+            'phone_number' => '+23566000000',
+        ])->assertOk();
+
+        $this->postJson('/api/payments/simulate', [
+            'application_id' => $application->id,
+        ])->assertOk();
+
+        $this->assertDatabaseHas('payments', [
+            'application_id' => $application->id,
+            'status' => 'confirmed',
+        ]);
     }
 }

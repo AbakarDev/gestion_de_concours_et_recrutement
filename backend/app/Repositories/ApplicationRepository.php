@@ -17,7 +17,7 @@ class ApplicationRepository extends BaseRepository implements ApplicationReposit
     public function getPaginatedWithFilters(array $filters, int $perPage = 15): LengthAwarePaginator
     {
         $query = $this->model->newQuery()
-            ->with(['user', 'jobOffer', 'jobOffer.competition', 'documents', 'scores', 'statusHistory', 'convocation']);
+            ->with(['user', 'jobOffer', 'jobOffer.competition', 'documents', 'scores', 'statusHistory', 'convocation', 'payment']);
 
         if (!empty($filters['search'])) {
             $search = $filters['search'];
@@ -78,6 +78,7 @@ class ApplicationRepository extends BaseRepository implements ApplicationReposit
             'scores',
             'convocation',
             'statusHistory.changedBy',
+            'payment',
         ])->find($id);
     }
 }

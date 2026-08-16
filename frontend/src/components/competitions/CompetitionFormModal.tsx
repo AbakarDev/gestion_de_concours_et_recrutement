@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Save, Plus, Trash2 } from 'lucide-react';
-import { competitionsApi } from '../../api';
-import type { Competition, Department } from '../../types';
+import { X, Save } from 'lucide-react';
+import { competitionsApi, dossierApi } from '../../api';
+import type { Competition, Department, DocumentTypeCatalog } from '../../types';
 import { notify } from '../../lib/feedback';
 
 interface Props {
@@ -26,10 +26,16 @@ export default function CompetitionFormModal({ competition, departments, onClose
     fee_required: false,
     fee_amount: 0,
   });
-  const [documents, setDocuments] = useState<string[]>(['CV', 'Lettre de motivation']);
-  const [newDoc, setNewDoc] = useState('');
+  const [documents, setDocuments] = useState<string[]>([
+    'photo_identite', 'cni', 'acte_naissance', 'diplome', 'casier_judiciaire', 'cv_officiel',
+  ]);
+  const [catalog, setCatalog] = useState<DocumentTypeCatalog[]>([]);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    dossierApi.types().then(res => setCatalog(res.data.data || [])).catch(() => {});
+  }, []);
 
   useEffect(() => {
     if (competition) {
@@ -84,15 +90,8 @@ export default function CompetitionFormModal({ competition, departments, onClose
     }
   };
 
-  const addDocument = () => {
-    if (newDoc.trim() && !documents.includes(newDoc.trim())) {
-      setDocuments([...documents, newDoc.trim()]);
-      setNewDoc('');
-    }
-  };
-
-  const removeDocument = (index: number) => {
-    setDocuments(documents.filter((_, i) => i !== index));
+  const toggleDocument = (code: string) => {
+    setDocuments(prev => prev.includes(code) ? prev.filter(c => c !== code) : [...prev, code]);
   };
 
   return (
@@ -252,30 +251,22 @@ export default function CompetitionFormModal({ competition, departments, onClose
             </div>
 
             <div className="space-y-3 pt-4 border-t border-slate-200">
-              <label className="text-sm font-medium text-slate-500">Documents obligatoires</label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Nom du document (ex: Copie CNI)"
-                  value={newDoc}
-                  onChange={e => setNewDoc(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addDocument())}
-                  className="input-field"
-                />
-                <button type="button" onClick={addDocument} className="px-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl transition-colors">
-                  <Plus size={20} />
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {documents.map((doc, i) => (
-                  <span key={i} className="inline-flex items-center gap-1.5 pl-3 pr-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg text-sm">
-                    {doc}
-                    <button type="button" onClick={() => removeDocument(i)} className="p-0.5 hover:bg-blue-500/20 rounded-md transition-colors">
-                      <X size={14} />
-                    </button>
-                  </span>
+              <label className="text-sm font-medium text-slate-500">Pièces exigées par l’avis (catalogue ministériel)</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {(catalog.length ? catalog : []).map(item => (
+                  <label key={item.code} className="flex items-start gap-2 text-sm text-slate-700 bg-slate-50 border border-slate-200 rounded-xl p-2.5">
+                    <input
+                      type="checkbox"
+                      checked={documents.includes(item.code)}
+                      onChange={() => toggleDocument(item.code)}
+                      className="mt-0.5 rounded border-slate-300"
+                    />
+                    <span>
+                      {item.label}
+                      {item.generated && <span className="block text-xs text-slate-400">Généré par la plateforme</span>}
+                    </span>
+                  </label>
                 ))}
-                {documents.length === 0 && <span className="text-sm text-slate-400">Aucun document requis.</span>}
               </div>
             </div>
           </form>

@@ -12,8 +12,8 @@ const navItems = [
   { to: '/candidate', icon: LayoutDashboard, label: 'Tableau de bord', end: true },
   { to: '/candidate/applications', icon: FileText, label: 'Mes candidatures' },
   { to: '/candidate/offers', icon: Briefcase, label: 'Offres d\'emploi' },
-  { to: '/candidate/documents', icon: FileText, label: 'Mes documents' },
-  { to: '/candidate/profile', icon: User, label: 'Mon profil' },
+  { to: '/candidate/documents', icon: FileText, label: 'Pièces justificatives' },
+  { to: '/candidate/profile', icon: User, label: 'Mon dossier' },
 ];
 
 export const CandidateLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {

@@ -55,7 +55,16 @@ class DocumentController extends Controller
             'application_id' => 'nullable|exists:applications,id'
         ]);
 
+        $type = \App\Enums\DocumentType::fromLegacy((string) $request->type);
+        if (! $type || $type->isGenerated()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Type de pièce non reconnu. Utilisez le catalogue ministériel (CNI, diplôme, casier, etc.). Le CV et la lettre sont générés par le système.',
+            ], 422);
+        }
+
         $user = $request->user();
+        $candidate = app(\App\Actions\EnsureCandidateProfileAction::class)->execute($user);
 
         if ($request->application_id) {
             $application = \App\Models\Application::findOrFail($request->application_id);
@@ -64,13 +73,16 @@ class DocumentController extends Controller
             }
         }
 
-        $candidateId = $user->candidate?->id;
         $path = $request->file('file')->store('documents', 'public');
 
+        if ($type === \App\Enums\DocumentType::PhotoIdentite) {
+            $candidate->update(['photo_path' => $path]);
+        }
+
         $document = Document::create([
-            'candidate_id' => $candidateId,
+            'candidate_id' => $candidate->id,
             'application_id' => $request->application_id,
-            'type' => $request->type,
+            'type' => $type->value,
             'path' => $path,
             'status' => 'en attente'
         ]);

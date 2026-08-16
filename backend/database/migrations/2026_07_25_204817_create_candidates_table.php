@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('candidates', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->date('date_naissance');
-            $table->string('sexe');
-            $table->text('adresse');
+            $table->date('date_naissance')->nullable();
+            $table->string('sexe')->nullable();
+            $table->text('adresse')->nullable();
             $table->string('nni')->unique()->nullable();
             $table->timestamps();
         });

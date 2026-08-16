@@ -9,6 +9,7 @@ import { ApplicationInstructors, Role } from '../../lib/roles';
 import { notify } from '../../lib/feedback';
 import { useConfirm } from '../ui/ConfirmProvider';
 import StatusBadge from '../ui/StatusBadge';
+import FeePaymentPanel from '../payments/FeePaymentPanel';
 
 interface Props {
   applicationId: number;
@@ -112,6 +113,8 @@ export default function ApplicationDetailsModal({ applicationId, onClose, onUpda
       </div>
     );
   }
+
+  const paymentBlocking = Boolean(application.payment?.required && !application.payment?.confirmed);
 
   const candidateName = application.user
     ? `${application.user.first_name} ${application.user.last_name}`
@@ -230,7 +233,7 @@ export default function ApplicationDetailsModal({ applicationId, onClose, onUpda
                             <FileText size={18} />
                           </div>
                           <div>
-                            <p className="text-sm font-semibold text-slate-800">{doc.type}</p>
+                            <p className="text-sm font-semibold text-slate-800">{doc.type_label || doc.type}</p>
                             <p className="text-xs text-slate-500">
                               {doc.created_at ? `Ajouté le ${new Date(doc.created_at).toLocaleDateString()}` : 'Document vérifié'}
                             </p>
@@ -265,6 +268,27 @@ export default function ApplicationDetailsModal({ applicationId, onClose, onUpda
                 </div>
               </div>
 
+              {application.payment?.required && !application.payment?.confirmed && isCandidate && (
+                <FeePaymentPanel
+                  applicationId={application.id}
+                  amount={application.payment.montant}
+                  phoneDefault={user?.phone}
+                  onPaid={async () => {
+                    const res = await applicationsApi.get(applicationId);
+                    setApplication(res.data.data);
+                    onUpdated();
+                  }}
+                />
+              )}
+
+              {application.payment?.required && !application.payment?.confirmed && isAdminOrValidation && (
+                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+                  Instruction bloquée : les frais de dossier (
+                  {Number(application.payment.montant || 0).toLocaleString('fr-FR')} FCFA
+                  ) ne sont pas confirmés.
+                </div>
+              )}
+
               {isAdminOrValidation && (
                 <div className="space-y-4">
                   <h4 className="text-lg font-semibold text-slate-800">Évaluation du dossier</h4>
@@ -291,7 +315,7 @@ export default function ApplicationDetailsModal({ applicationId, onClose, onUpda
                       {application.status === 'submitted' && (
                         <button
                           onClick={() => handleUpdateStatus('under_review')}
-                          disabled={isUpdating}
+                          disabled={isUpdating || paymentBlocking}
                           className="flex-1 min-w-[140px] px-4 py-2.5 bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 border border-yellow-500/20 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                         >
                           <Clock size={16} /> Passer en évaluation
@@ -300,7 +324,7 @@ export default function ApplicationDetailsModal({ applicationId, onClose, onUpda
                       
                       <button
                         onClick={() => handleUpdateStatus('accepted')}
-                        disabled={isUpdating || application.status === 'accepted'}
+                        disabled={isUpdating || application.status === 'accepted' || paymentBlocking}
                         className="flex-1 min-w-[140px] px-4 py-2.5 bg-green-500/10 text-green-500 hover:bg-green-500/20 border border-green-500/20 rounded-xl font-medium text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
                       >
                         <CheckCircle size={16} /> Valider le dossier
@@ -318,6 +342,17 @@ export default function ApplicationDetailsModal({ applicationId, onClose, onUpda
                 </div>
               )}
 
+              {application.motivation_corps && (
+                <div className="space-y-2">
+                  <h4 className="text-lg font-semibold text-slate-800">Lettre de candidature</h4>
+                  {application.motivation_objet && (
+                    <p className="text-xs text-slate-500">Objet : {application.motivation_objet}</p>
+                  )}
+                  <p className="text-sm text-slate-700 whitespace-pre-wrap bg-slate-50 border border-slate-200 rounded-xl p-4">
+                    {application.motivation_corps}
+                  </p>
+                </div>
+              )}
               {application.status === 'rejected' && application.rejection_reason && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-800">
                   <p className="font-semibold mb-1">Motif du rejet</p>

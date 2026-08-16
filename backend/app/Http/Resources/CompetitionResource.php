@@ -37,7 +37,7 @@ class CompetitionResource extends JsonResource
             'reference' => $this->reference,
             'description' => $this->description,
             'quota' => $this->quota,
-            'required_documents' => $this->required_documents,
+            'required_documents' => \App\Enums\DocumentType::normalizeList($this->required_documents),
             'start_date' => $this->start_date?->format('Y-m-d'),
             'end_date' => $this->end_date?->format('Y-m-d'),
             'registration_open_date' => $this->registration_open_date?->format('Y-m-d'),

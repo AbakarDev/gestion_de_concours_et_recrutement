@@ -49,6 +49,7 @@ export interface JobOffer {
   positions_count: number;
   location?: string;
   requirements?: Record<string, string>;
+  required_documents?: string[];
   fee_required?: boolean;
   fee_amount?: number | null;
   closing_date?: string | null;
@@ -62,10 +63,77 @@ export interface ApplicationDocument {
   candidate_id?: number;
   application_id?: number;
   type: string;
+  type_label?: string;
   path?: string | null;
   url?: string | null;
   status: string;
   created_at: string;
+}
+
+export interface DocumentTypeCatalog {
+  code: string;
+  label: string;
+  category: string;
+  category_label: string;
+  generated: boolean;
+  accept: string[];
+}
+
+export interface DossierChecklistItem {
+  code: string;
+  label: string;
+  required: boolean;
+  present: boolean;
+  generated: boolean;
+  hint: string;
+}
+
+export interface DiplomaRecord {
+  id: number;
+  type_diplome?: string;
+  niveau: string;
+  etablissement: string;
+  specialite?: string | null;
+  annee: number;
+  document_id?: number | null;
+}
+
+export interface ExperienceRecord {
+  id: number;
+  poste: string;
+  employeur: string;
+  date_debut: string;
+  date_fin?: string | null;
+  description?: string | null;
+}
+
+export interface DossierPayload {
+  profile: {
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone?: string | null;
+    nin?: string | null;
+    date_naissance?: string | null;
+    lieu_naissance?: string | null;
+    nationalite?: string | null;
+    situation_familiale?: string | null;
+    sexe?: string | null;
+    adresse?: string | null;
+    photo_url?: string | null;
+    has_photo?: boolean;
+    langues: Array<{ langue: string; niveau: string }>;
+  };
+  diplomas: DiplomaRecord[];
+  experiences: ExperienceRecord[];
+  documents: ApplicationDocument[];
+  completeness: {
+    ready: boolean;
+    can_generate_cv: boolean;
+    checklist: DossierChecklistItem[];
+  };
+  document_types: DocumentTypeCatalog[];
+  diploma_levels: string[];
 }
 
 export interface Score {
@@ -92,6 +160,9 @@ export interface Application {
   status_label?: string;
   admin_notes?: string;
   rejection_reason?: string;
+  motivation_objet?: string | null;
+  motivation_corps?: string | null;
+  dossier_frozen_at?: string | null;
   anonymat_number?: string | null;
   user: {
     id: number;
@@ -106,6 +177,12 @@ export interface Application {
     title: string;
     competition_title?: string;
   };
+  payment?: {
+    required: boolean;
+    confirmed: boolean;
+    status?: string | null;
+    montant?: number | string | null;
+  } | null;
   documents?: ApplicationDocument[];
   scores?: Score[];
   convocation_url?: string | null;

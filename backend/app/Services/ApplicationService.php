@@ -45,6 +45,20 @@ class ApplicationService extends BaseService
                 throw ValidationException::withMessages(['rejection_reason' => 'Le motif de rejet est obligatoire.']);
             }
 
+            $application->loadMissing(['jobOffer.competition', 'payment']);
+
+            $blocksInstruction = in_array($status, [
+                ApplicationStatus::UNDER_REVIEW,
+                ApplicationStatus::ACCEPTED,
+                ApplicationStatus::EVALUATED,
+            ], true);
+
+            if ($blocksInstruction && ! $application->isPaymentConfirmed()) {
+                throw ValidationException::withMessages([
+                    'payment' => ['Le paiement des frais de dossier n\'est pas confirmé. L\'instruction est bloquée.'],
+                ]);
+            }
+
             $oldStatus = $application->status->value;
             $newStatus = $status->value;
 

@@ -7,6 +7,7 @@ import ApplicationDetailsModal from '../../components/applications/ApplicationDe
 import { AnimatePresence } from 'framer-motion';
 import StatusBadge from '../../components/ui/StatusBadge';
 import PageHeader from '../../components/ui/PageHeader';
+import FeePaymentPanel from '../../components/payments/FeePaymentPanel';
 
 export default function CandidateApplications() {
   const [applications, setApplications] = useState<any[]>([]);
@@ -101,6 +102,20 @@ export default function CandidateApplications() {
                   <span className="text-xs text-red-600 font-medium flex items-center gap-1">
                     <XCircle size={12}/> Dossier non retenu
                   </span>
+                )}
+
+                {app.payment?.required && !app.payment?.confirmed && (
+                  <div className="w-full md:w-80">
+                    <FeePaymentPanel
+                      applicationId={app.id}
+                      amount={app.payment.montant}
+                      phoneDefault={user?.phone}
+                      onPaid={fetchApplications}
+                    />
+                  </div>
+                )}
+                {app.payment?.required && app.payment?.confirmed && (
+                  <span className="text-xs text-green-700 font-medium">Frais réglés</span>
                 )}
 
                 <button

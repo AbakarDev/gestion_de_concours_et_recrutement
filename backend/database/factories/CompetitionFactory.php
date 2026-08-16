@@ -19,7 +19,7 @@ class CompetitionFactory extends Factory
             'reference' => 'C-' . strtoupper($this->faker->unique()->lexify('????')) . '-' . date('Y'),
             'description' => $this->faker->paragraphs(3, true),
             'quota' => $this->faker->numberBetween(10, 500),
-            'required_documents' => ['CV', 'Lettre de motivation', 'Copie diplôme', 'Casier judiciaire'],
+            'required_documents' => \App\Enums\DocumentType::concoursDefaults(),
             'start_date' => $startDate,
             'end_date' => $endDate,
             'status' => $this->faker->randomElement([CompetitionStatus::DRAFT, CompetitionStatus::PUBLISHED, CompetitionStatus::OPEN]),

@@ -11,7 +11,7 @@ class DocumentFactory extends Factory
     {
         return [
             'application_id' => Application::factory(),
-            'type' => $this->faker->randomElement(['CV', 'Lettre de motivation', 'Diplôme', 'CNI']),
+            'type' => $this->faker->randomElement(['cni', 'diplome', 'casier_judiciaire', 'acte_naissance']),
             'path' => 'documents/' . $this->faker->uuid() . '.pdf',
             'status' => $this->faker->randomElement(['en attente', 'validé', 'rejeté']),
         ];

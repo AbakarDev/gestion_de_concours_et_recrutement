@@ -15,6 +15,7 @@ class DocumentResource extends JsonResource
         return [
             'id'          => $this->id,
             'type'        => $this->type,
+            'type_label'  => \App\Enums\DocumentType::fromLegacy((string) $this->type)?->label() ?? $this->type,
             'path'        => $isJury ? null : $this->path,
             'url'         => $isJury ? null : ($this->path ? Storage::disk('public')->url($this->path) : null),
             'status'      => $this->status,

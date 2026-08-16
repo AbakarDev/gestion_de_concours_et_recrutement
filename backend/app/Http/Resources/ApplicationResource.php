@@ -33,7 +33,11 @@ class ApplicationResource extends JsonResource
             'status_label' => $this->status->label(),
             'admin_notes' => $isJury ? null : $this->admin_notes,
             'rejection_reason' => $isJury ? null : $this->rejection_reason,
+            'motivation_objet' => $isJury ? null : $this->motivation_objet,
+            'motivation_corps' => $isJury ? null : $this->motivation_corps,
+            'dossier_frozen_at' => $isJury ? null : $this->dossier_frozen_at?->toIso8601String(),
             'submitted_at' => $isJury ? null : $this->submitted_at?->toIso8601String(),
+            'payment' => $isJury ? null : $this->paymentPayload(),
             'documents' => DocumentResource::collection($this->whenLoaded('documents')),
             'scores' => $this->whenLoaded('scores'),
             'convocation_url' => $isJury ? null : (
@@ -58,6 +62,30 @@ class ApplicationResource extends JsonResource
                         'created_at' => $entry->created_at?->toIso8601String(),
                     ]);
             }),
+        ];
+    }
+
+    /**
+     * @return array{required: bool, confirmed: bool, status: ?string, montant: mixed}
+     */
+    private function paymentPayload(): array
+    {
+        $this->resource->loadMissing(['jobOffer.competition', 'payment']);
+
+        $feeRequired = (bool) (
+            $this->jobOffer?->fee_required
+            || ($this->jobOffer?->competition?->fee_required ?? false)
+        );
+
+        $montant = $this->payment?->montant
+            ?? $this->jobOffer?->fee_amount
+            ?? $this->jobOffer?->competition?->fee_amount;
+
+        return [
+            'required' => $feeRequired,
+            'confirmed' => $this->resource->isPaymentConfirmed(),
+            'status' => $this->payment?->status,
+            'montant' => $montant,
         ];
     }
 }

@@ -51,6 +51,10 @@ class AuthService extends BaseService
         return DB::transaction(function () use ($dto, $ip, $userAgent) {
             $user = $this->repository->create($dto->toArray());
             $user->assignRole(\App\Enums\RoleName::Candidat->value);
+            $user->candidate()->create([
+                'nni' => $user->nin,
+                'nationalite' => 'Tchadienne',
+            ]);
             $user->load('roles', 'permissions');
 
             $tokens = $this->generateTokenPair($user, $ip, $userAgent);
