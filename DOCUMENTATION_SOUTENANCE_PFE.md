@@ -4,7 +4,7 @@
 
 Ce document décrit **ce qui existe réellement dans le code**, les outils utilisés, et comment répondre au jury. Si une question porte sur une brique non livrée (opérateur Mobile Money réel, Redis en production), le dire clairement : c’est plus solide que d’inventer.
 
-**Client mobile retenu : React Native** (pas Flutter). Il consomme **la même API Laravel** que le site web. Le dossier `mobile/` n’est pas encore dans ce dépôt : le choix techno est figé ; l’implémentation se fait en client séparé (Expo + TypeScript).
+**Client mobile retenu : React Native** (pas Flutter). Il consomme **la même API Laravel** que le site web. Le dossier `mobile/` (Expo + TypeScript) est dans ce dépôt. Branchement API, auth et lancement : [`GUIDE_WEB_MOBILE.md`](GUIDE_WEB_MOBILE.md). Journal de ce qui a été mis en place et des technos : [`DOCUMENTATION_TRAVAIL_WEB_MOBILE.md`](DOCUMENTATION_TRAVAIL_WEB_MOBILE.md).
 
 ---
 
@@ -68,7 +68,7 @@ Aujourd’hui, beaucoup de concours publics au Tchad restent largement **papier*
 
 ### Périmètre livré
 
-**Web (dans ce dépôt — `frontend/`)**
+**Web (dans ce dépôt — `web/`)**
 
 - Site public (landing, liste des concours).
 - Espace candidat (dossier, documents, candidatures).
@@ -192,7 +192,7 @@ backend/app/
 ### Frontend (structure)
 
 ```
-frontend/src/
+web/src/
 ├── api/              Appels Axios (competitionsApi, usersApi…)
 ├── lib/              axios (intercepteurs), roles, toasts (Sonner)
 ├── contexts/         AuthContext (session)
@@ -310,8 +310,8 @@ Le mobile **ne duplique pas** les règles (HMAC, RBAC, dates de clôture) : il a
 |---|---|---|
 | **React Native** | UI native (pas une WebView du site) | Vraie app Android/iOS, un seul code |
 | **Expo** | Chaîne de build, preview téléphone | Plus rapide qu’un RN « bare » pour un PFE ; EAS Build pour APK/AAB |
-| **TypeScript** | Même langage que `frontend/` | Partage possible de types (`Role`, `Application`) |
-| **Axios** (ou `fetch` + intercepteur) | HTTP | Même schéma que `frontend/src/lib/axios.ts` : Bearer + refresh si 401 |
+| **TypeScript** | Même langage que `web/` | Partage possible de types (`Role`, `Application`) |
+| **Axios** (ou `fetch` + intercepteur) | HTTP | Même schéma que `web/src/lib/axios.ts` : Bearer + refresh si 401 |
 | **React Navigation** | Écrans / piles | Équivalent React Router, adapté au mobile |
 | **SecureStore (Expo)** | Stocker access/refresh tokens | **Pas** `localStorage` (n’existe pas). Plus sûr que AsyncStorage en clair |
 | **Expo Camera / ImagePicker** | Photo des pièces (CNI, diplôme) | Cas d’usage réel au Tchad (scanner depuis le téléphone) |
@@ -332,7 +332,7 @@ Les écrans **Jury / SuperAdmin** restent sur le web. On peut plus tard un écra
 
 ### Ce que tu dis si le jury demande « montrez l’APK »
 
-État actuel du dépôt : le **backend + frontend web** sont là ; le client React Native est le **choix d’architecture**, à placer dans un dossier `mobile/` (Expo).  
+État actuel du dépôt : `backend/` (Laravel) + `web/` (React) + `mobile/` (Expo / React Native) + `infra/` (Docker, Postgres).  
 Si l’app n’est pas encore compilée le jour J : montrer le contrat API (`routes/api.php`), le login Sanctum, et le schéma « un backend, deux clients ». Ne pas improviser un projet Flutter.
 
 ### Lien avec le paiement mock
@@ -343,7 +343,7 @@ Sur mobile, `POST /api/payments/initiate` + USSD simulé a plus de sens (le cand
 
 ## 6. Les 6 rôles (RBAC)
 
-Source unique : enum PHP `App\Enums\RoleName` **et** miroir TypeScript `frontend/src/lib/roles.ts`.  
+Source unique : enum PHP `App\Enums\RoleName` **et** miroir TypeScript `web/src/lib/roles.ts`.  
 Guard Spatie : **`sanctum`** (pas `web`). Si le guard est faux, tous les rôles « n’existent pas » → 403 partout.
 
 | Rôle (valeur en base) | Mission | Accès UI typique |
@@ -762,7 +762,7 @@ php artisan db:seed --class=RolesAndPermissionsSeeder
 php artisan serve --port=8001
 
 # Frontend (autre terminal)
-cd frontend
+cd web
 npm install
 npm run dev
 ```

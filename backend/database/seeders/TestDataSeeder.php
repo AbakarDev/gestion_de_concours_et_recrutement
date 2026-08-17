@@ -37,8 +37,10 @@ class TestDataSeeder extends Seeder
             'description' => 'Recrutement massif pour le renforcement des capacités de l\'administration publique tchadienne.',
             'start_date' => Carbon::now()->subDays(5),
             'end_date' => Carbon::now()->addDays(25),
-            'status' => 'published'
+            'status' => 'open',
+            'published_at' => Carbon::now()->subDays(5),
         ]);
+        $competition1->update(['status' => 'open']);
 
         $competition2 = Competition::firstOrCreate(['title' => 'Recrutement Spécial - Santé Publique 2026'], [
             'department_id' => $mspp->id,
@@ -46,8 +48,10 @@ class TestDataSeeder extends Seeder
             'description' => 'Recrutement de personnel médical pour les hôpitaux provinciaux.',
             'start_date' => Carbon::now()->subDays(2),
             'end_date' => Carbon::now()->addDays(30),
-            'status' => 'published'
+            'status' => 'open',
+            'published_at' => Carbon::now()->subDays(2),
         ]);
+        $competition2->update(['status' => 'open']);
 
         // 3. Offres d'emploi (Postes connus)
         $offers = [

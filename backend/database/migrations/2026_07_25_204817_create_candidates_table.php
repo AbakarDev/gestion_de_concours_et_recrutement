@@ -20,6 +20,10 @@ return new class extends Migration
             $table->string('nni')->unique()->nullable();
             $table->timestamps();
         });
+
+        Schema::table('documents', function (Blueprint $table) {
+            $table->foreign('candidate_id')->references('id')->on('candidates')->cascadeOnDelete();
+        });
     }
 
     /**
@@ -27,6 +31,9 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::table('documents', function (Blueprint $table) {
+            $table->dropForeign(['candidate_id']);
+        });
         Schema::dropIfExists('candidates');
     }
 };

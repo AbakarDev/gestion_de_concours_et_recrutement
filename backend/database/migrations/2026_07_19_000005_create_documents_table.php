@@ -10,12 +10,14 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('candidate_id')->nullable()->constrained('candidates')->cascadeOnDelete();
+            // FK ajoutée après create_candidates (Postgres refuse une FK vers une table absente).
+            $table->unsignedBigInteger('candidate_id')->nullable();
             $table->foreignId('application_id')->nullable()->constrained('applications')->cascadeOnDelete();
-            $table->string('type'); // e.g., 'cv', 'cover_letter', 'id_card', 'diploma'
+            $table->string('type');
             $table->string('path');
             $table->string('status')->default('en attente');
             $table->timestamps();
+            $table->index('candidate_id');
         });
     }
 

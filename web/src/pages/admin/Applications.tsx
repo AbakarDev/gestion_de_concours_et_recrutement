@@ -7,11 +7,14 @@ import { AnimatePresence } from 'framer-motion';
 import StatusBadge from '../../components/ui/StatusBadge';
 import ExportButtons from '../../components/ui/ExportButtons';
 import PageHeader from '../../components/ui/PageHeader';
+import { useDebounce } from '../../hooks/useDebounce';
+import { averageScore, formatDateFr, formatTimeFr } from '../../utils/format';
 
 export default function Applications() {
   const [applications, setApplications] = useState<Application[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [statusFilter, setStatusFilter] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -23,7 +26,7 @@ export default function Applications() {
     try {
       const res = await applicationsApi.list({
         page,
-        search,
+        search: debouncedSearch,
         status: statusFilter,
         per_page: 10,
       });
@@ -37,11 +40,8 @@ export default function Applications() {
   };
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(() => {
-      fetchApplications();
-    }, 300);
-    return () => clearTimeout(delayDebounceFn);
-  }, [page, search, statusFilter]);
+    fetchApplications();
+  }, [page, debouncedSearch, statusFilter]);
 
   const exportQuery = new URLSearchParams(
     Object.fromEntries(
@@ -121,7 +121,7 @@ export default function Applications() {
             <tbody>
               {isLoading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
                     <div className="flex items-center justify-center gap-2">
                       <div className="w-5 h-5 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                       Chargement...
@@ -130,7 +130,7 @@ export default function Applications() {
                 </tr>
               ) : applications.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-slate-400">
+                  <td colSpan={7} className="px-4 py-8 text-center text-slate-400">
                     Aucune candidature trouvée.
                   </td>
                 </tr>
@@ -147,18 +147,16 @@ export default function Applications() {
                       <p className="text-xs text-blue-700">{app.job_offer?.competition_title}</p>
                     </td>
                     <td>
-                      <p className="text-slate-600">{app.submitted_at ? new Date(app.submitted_at).toLocaleDateString() : '—'}</p>
+                      <p className="text-slate-600">{formatDateFr(app.submitted_at)}</p>
                       {app.submitted_at && (
-                        <p className="text-xs text-slate-400">à {new Date(app.submitted_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                        <p className="text-xs text-slate-400">à {formatTimeFr(app.submitted_at)}</p>
                       )}
                     </td>
                     <td>
                       <StatusBadge status={app.status} label={app.status_label} />
                     </td>
                     <td className="font-bold text-blue-700">
-                      {app.scores && app.scores.length > 0 
-                        ? `${(app.scores.reduce((acc, curr) => acc + parseFloat(curr.note as unknown as string), 0) / app.scores.length).toFixed(2)} / 20`
-                        : '-'}
+                      {averageScore(app.scores)}
                     </td>
                     <td className="text-right">
                       <button
