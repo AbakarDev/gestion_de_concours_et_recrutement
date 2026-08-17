@@ -68,6 +68,10 @@ Thumbs.db
 .cursor/
 mobile/.claude/
 
+# Guides locaux (non publiés sur GitHub)
+GUIDE_WEB_MOBILE.md
+DOCUMENTATION_TRAVAIL_WEB_MOBILE.md
+
 # ── Divers ───────────────────────────────────────────────
 coverage/
 .turbo/

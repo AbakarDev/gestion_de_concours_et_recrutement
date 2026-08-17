@@ -11,9 +11,6 @@ infra/      Docker Compose, Nginx, PHP-FPM, PostgreSQL, pg_setup.md
 
 L’API n’utilise **pas** `/api/v1` : les routes Laravel sont sous `/api`.
 
-Organisation des clients, connexion Sanctum, URLs (PC / émulateur / téléphone) : **[`GUIDE_WEB_MOBILE.md`](GUIDE_WEB_MOBILE.md)**.  
-Ce qui a été fait et les technologies : **[`DOCUMENTATION_TRAVAIL_WEB_MOBILE.md`](DOCUMENTATION_TRAVAIL_WEB_MOBILE.md)**.
-
 ## Lancer en local
 
 PostgreSQL (déjà mappé sur le port **5433**) :

@@ -4,7 +4,7 @@
 
 Ce document décrit **ce qui existe réellement dans le code**, les outils utilisés, et comment répondre au jury. Si une question porte sur une brique non livrée (opérateur Mobile Money réel, Redis en production), le dire clairement : c’est plus solide que d’inventer.
 
-**Client mobile retenu : React Native** (pas Flutter). Il consomme **la même API Laravel** que le site web. Le dossier `mobile/` (Expo + TypeScript) est dans ce dépôt. Branchement API, auth et lancement : [`GUIDE_WEB_MOBILE.md`](GUIDE_WEB_MOBILE.md). Journal de ce qui a été mis en place et des technos : [`DOCUMENTATION_TRAVAIL_WEB_MOBILE.md`](DOCUMENTATION_TRAVAIL_WEB_MOBILE.md).
+**Client mobile retenu : React Native** (pas Flutter). Il consomme **la même API Laravel** que le site web. Le dossier `mobile/` (Expo + TypeScript) est dans ce dépôt.
 
 ---
 
