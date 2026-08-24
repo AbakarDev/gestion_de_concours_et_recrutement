@@ -8,8 +8,8 @@ class SettingService
 {
     /** @var array<string, string> */
     public const DEFAULTS = [
-        'platform_name' => 'E-Concours Tchad',
-        'platform_subtitle' => 'Plateforme gouvernementale de recrutement',
+        'platform_name' => 'Portail Concours et Recrutements Tchad',
+        'platform_subtitle' => 'Plateforme web et mobile pour la gestion des concours et des recrutements au Tchad',
         'contact_email' => 'contact@recrute.td',
         'contact_phone' => '+235 22 51 00 00',
         'support_message' => 'Pour toute assistance, contactez la Direction des concours.',

@@ -122,4 +122,40 @@ class AdminCompletenessTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.is_active', false);
     }
+
+    public function test_superadmin_can_update_and_delete_user(): void
+    {
+        $this->actingAsRole(RoleName::SuperAdmin);
+        $other = User::factory()->create([
+            'email' => 'staff.edit@recrute.td',
+            'is_active' => true,
+        ]);
+        $other->assignRole(RoleName::Recruteur->value);
+
+        $this->putJson("/api/users/{$other->id}", [
+            'first_name' => 'Staff',
+            'last_name' => 'Edit',
+            'email' => 'staff.updated@recrute.td',
+            'password' => 'password99',
+        ])->assertOk()
+          ->assertJsonPath('data.email', 'staff.updated@recrute.td');
+
+        $this->putJson("/api/users/{$other->id}/permissions", [
+            'permissions' => ['results.view'],
+        ])->assertOk()
+          ->assertJsonPath('data.direct_permissions.0', 'results.view');
+
+        $this->deleteJson("/api/users/{$other->id}")
+            ->assertOk();
+
+        $this->assertSoftDeleted('users', ['id' => $other->id]);
+    }
+
+    public function test_superadmin_cannot_delete_self(): void
+    {
+        $admin = $this->actingAsRole(RoleName::SuperAdmin);
+
+        $this->deleteJson("/api/users/{$admin->id}")
+            ->assertStatus(422);
+    }
 }

@@ -1,4 +1,4 @@
-# Client mobile — E-Concours Tchad (React Native / Expo)
+# Client mobile — Portail Concours et Recrutements Tchad (React Native / Expo)
 
 Client **léger** de la même API Laravel Sanctum que `web/`.  
 Préfixe réel : **`/api`** (ce dépôt n’expose pas `/api/v1`).

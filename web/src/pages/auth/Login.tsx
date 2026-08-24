@@ -44,9 +44,9 @@ const LoginPage: React.FC = () => {
 
   return (
     <AuthShell
-      kicker="Ministère de la Fonction Publique"
-      title="Recrutement public, équitable et numérique"
-      subtitle="Connectez-vous pour déposer un dossier, instruire une candidature ou noter une copie anonyme."
+      kicker="Portail public — concours et recrutements"
+      title="Concours et recrutements en un seul espace"
+      subtitle="Connectez-vous pour déposer un dossier, suivre une candidature ou instruire une offre."
       headerRight={
         <Link to="/register" className="btn-primary text-sm py-2 px-4 hidden sm:inline-flex">
           S'inscrire
@@ -120,6 +120,15 @@ const LoginPage: React.FC = () => {
               <><LogIn size={16} />Se connecter</>
             )}
           </motion.button>
+          <p className="text-center mt-4">
+            <Link to="/forgot-password" className="text-sm font-semibold text-blue-800 hover:text-blue-600">
+              Mot de passe oublié ?
+            </Link>
+            <span className="text-slate-300 mx-2">·</span>
+            <Link to="/login-otp" className="text-sm font-semibold text-blue-800 hover:text-blue-600">
+              Connexion par code
+            </Link>
+          </p>
         </form>
 
         <div className="mt-6 pt-5 border-t border-slate-100">
@@ -139,6 +148,15 @@ const LoginPage: React.FC = () => {
               </button>
             ))}
           </div>
+          <p className="text-center mt-4">
+            <Link to="/forgot-password" className="text-sm font-semibold text-blue-800 hover:text-blue-600">
+              Mot de passe oublié ?
+            </Link>
+            <span className="text-slate-300 mx-2">·</span>
+            <Link to="/login-otp" className="text-sm font-semibold text-blue-800 hover:text-blue-600">
+              Connexion par code
+            </Link>
+          </p>
           <p className="text-center text-slate-500 text-sm mt-6">
             Pas encore de compte ?{' '}
             <Link to="/register" className="text-blue-800 hover:text-blue-600 font-semibold">
@@ -147,7 +165,7 @@ const LoginPage: React.FC = () => {
           </p>
         </div>
       </div>
-      <p className="text-center text-slate-400 text-xs mt-6">© 2026 Ministère de la Fonction Publique — République du Tchad</p>
+      <p className="text-center text-slate-400 text-xs mt-6">© 2026 Portail Concours et Recrutements Tchad — PFE</p>
     </AuthShell>
   );
 };

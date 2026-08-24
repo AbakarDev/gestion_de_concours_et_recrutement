@@ -84,9 +84,17 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware(RoleName::route([RoleName::SuperAdmin]));
     Route::post('/users', [UserController::class, 'store'])
         ->middleware(RoleName::route([RoleName::SuperAdmin]));
+    Route::put('/users/{id}', [UserController::class, 'update'])
+        ->middleware(RoleName::route([RoleName::SuperAdmin]));
     Route::put('/users/{id}/role', [UserController::class, 'updateRole'])
         ->middleware(RoleName::route([RoleName::SuperAdmin]));
+    Route::put('/users/{id}/permissions', [UserController::class, 'syncPermissions'])
+        ->middleware(RoleName::route([RoleName::SuperAdmin]));
     Route::patch('/users/{id}/active', [UserController::class, 'toggleActive'])
+        ->middleware(RoleName::route([RoleName::SuperAdmin]));
+    Route::delete('/users/{id}', [UserController::class, 'destroy'])
+        ->middleware(RoleName::route([RoleName::SuperAdmin]));
+    Route::get('/permissions', [UserController::class, 'permissionsCatalog'])
         ->middleware(RoleName::route([RoleName::SuperAdmin]));
 
     Route::get('/settings', [SettingController::class, 'index'])

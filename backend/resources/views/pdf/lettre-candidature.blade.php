@@ -23,7 +23,7 @@
         $candidate = $user->candidate ?? null;
         $competition = $application->jobOffer->competition ?? null;
         $ministry = $competition?->ministry
-            ?: ($competition?->department?->name ?? 'Ministère de la Fonction Publique');
+            ?: ($competition?->department?->name ?? 'Organisation partenaire');
         $city = $candidate?->adresse ? \Illuminate\Support\Str::limit($candidate->adresse, 40, '') : 'N\'Djamena';
     @endphp
 
@@ -76,7 +76,7 @@
     </p>
 
     <div class="footer">
-        Lettre générée par la plateforme E-Concours Tchad le {{ now()->format('d/m/Y à H:i') }} — usage officiel.
+        Lettre générée par le Portail Concours et Recrutements Tchad le {{ now()->format('d/m/Y à H:i') }} — usage officiel.
     </div>
 </body>
 </html>

@@ -6,7 +6,7 @@ import PublicHeader from './PublicHeader';
 const DEFAULT_POINTS = [
   { icon: Lock, text: 'Copies anonymes — le jury ne voit jamais votre identité' },
   { icon: ShieldCheck, text: 'Notes scellées par cachet HMAC, horodatées' },
-  { icon: Landmark, text: 'Portail officiel du Ministère de la Fonction Publique' },
+  { icon: Landmark, text: 'Portail public des concours et des recrutements' },
 ];
 
 type AuthShellProps = {
@@ -21,9 +21,9 @@ type AuthShellProps = {
 export default function AuthShell({
   children,
   headerRight,
-  kicker = 'République du Tchad',
+  kicker = 'Portail Concours et Recrutements Tchad',
   title = 'Espace sécurisé',
-  subtitle = 'Connexion à la plateforme gouvernementale de recrutement.',
+  subtitle = 'Connexion au portail de gestion des concours et des recrutements.',
   wide = false,
 }: AuthShellProps) {
   return (
@@ -59,7 +59,7 @@ export default function AuthShell({
             ))}
           </ul>
           <p className="relative z-10 text-[12px] text-blue-200/50 mt-10">
-            Ministère de la Fonction Publique · N'Djaména
+            Portail Concours et Recrutements Tchad · N'Djaména
           </p>
         </aside>
 

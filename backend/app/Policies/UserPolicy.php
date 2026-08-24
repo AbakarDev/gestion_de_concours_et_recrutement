@@ -25,4 +25,9 @@ class UserPolicy
     {
         return $user->hasPermissionTo('users.edit');
     }
+
+    public function delete(User $user): bool
+    {
+        return $user->hasPermissionTo('users.delete');
+    }
 }

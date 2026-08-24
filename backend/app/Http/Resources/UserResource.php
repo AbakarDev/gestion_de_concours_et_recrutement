@@ -41,8 +41,15 @@ class UserResource extends JsonResource
             'email_verified_at' => $this->email_verified_at?->toIso8601String(),
             'phone_verified_at' => $this->phone_verified_at?->toIso8601String(),
             'is_active' => $this->is_active,
-            'roles' => $this->whenLoaded('roles', fn() => $this->roles->pluck('name')),
-            'permissions' => $this->whenLoaded('permissions', fn() => $this->getAllPermissions()->pluck('name')),
+            'roles' => $this->whenLoaded('roles', fn () => $this->roles->pluck('name')->values()),
+            'permissions' => $this->when(
+                $this->relationLoaded('roles') || $this->relationLoaded('permissions'),
+                fn () => $this->getAllPermissions()->pluck('name')->values()
+            ),
+            'direct_permissions' => $this->when(
+                $this->relationLoaded('permissions'),
+                fn () => $this->getDirectPermissions()->pluck('name')->values()
+            ),
             'last_login_at' => $this->last_login_at?->toIso8601String(),
             'created_at' => $this->created_at?->toIso8601String(),
         ];

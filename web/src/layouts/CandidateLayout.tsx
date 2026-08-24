@@ -1,30 +1,36 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  LayoutDashboard, Briefcase, FileText,
-  LogOut, ChevronLeft, ChevronRight, User, Home
+  LayoutGrid, Briefcase, ClipboardList, FolderOpen,
+  LogOut, Contact, Home, PanelLeftClose, PanelLeftOpen,
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import NotificationBell from '../components/ui/NotificationBell';
 
 const navItems = [
-  { to: '/candidate', icon: LayoutDashboard, label: 'Tableau de bord', end: true },
-  { to: '/candidate/applications', icon: FileText, label: 'Mes candidatures' },
+  { to: '/candidate', icon: LayoutGrid, label: 'Tableau de bord', end: true },
+  { to: '/candidate/applications', icon: ClipboardList, label: 'Mes candidatures' },
   { to: '/candidate/offers', icon: Briefcase, label: 'Offres d\'emploi' },
-  { to: '/candidate/documents', icon: FileText, label: 'Pièces justificatives' },
-  { to: '/candidate/profile', icon: User, label: 'Mon dossier' },
+  { to: '/candidate/documents', icon: FolderOpen, label: 'Pièces justificatives' },
+  { to: '/candidate/profile', icon: Contact, label: 'Mon dossier' },
 ];
 
 export const CandidateLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('candidate_sidebar_collapsed') === '1');
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.setItem('candidate_sidebar_collapsed', collapsed ? '1' : '0');
+  }, [collapsed]);
 
   const handleLogout = async () => {
     await logout();
     navigate('/');
   };
+
+  const toggleMenu = () => setCollapsed((v) => !v);
 
   return (
     <div className="app-shell">
@@ -41,7 +47,7 @@ export const CandidateLayout: React.FC<{ children: React.ReactNode }> = ({ child
             title="Retour à l'accueil"
           >
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-800 flex items-center justify-center flex-shrink-0 shadow-md">
-              <span className="text-white font-bold text-sm">RT</span>
+              <span className="text-white font-bold text-[10px]">eCR</span>
             </div>
             <AnimatePresence>
               {!collapsed && (
@@ -53,7 +59,7 @@ export const CandidateLayout: React.FC<{ children: React.ReactNode }> = ({ child
                   className="overflow-hidden"
                 >
                   <p className="text-white font-semibold text-sm leading-tight">Espace candidat</p>
-                  <p className="text-blue-200/50 text-[10px] uppercase tracking-wider mt-0.5">Portail public</p>
+                  <p className="text-blue-200/50 text-[10px] uppercase tracking-wider mt-0.5">e-CR Tchad</p>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -86,7 +92,7 @@ export const CandidateLayout: React.FC<{ children: React.ReactNode }> = ({ child
             ))}
           </nav>
 
-          <div className="p-3 border-t border-white/10">
+          <div className="p-3 border-t border-white/10 space-y-1">
             <div className={`flex items-center gap-3 px-2 py-2 rounded-xl ${!collapsed ? 'mb-1' : ''}`}>
               <div className="w-8 h-8 rounded-full bg-white/10 border border-white/15 flex items-center justify-center flex-shrink-0">
                 <span className="text-white text-xs font-bold">
@@ -108,6 +114,7 @@ export const CandidateLayout: React.FC<{ children: React.ReactNode }> = ({ child
               </AnimatePresence>
             </div>
             <button
+              type="button"
               onClick={handleLogout}
               className="app-nav-link w-full hover:!text-red-300"
             >
@@ -120,23 +127,34 @@ export const CandidateLayout: React.FC<{ children: React.ReactNode }> = ({ child
                 )}
               </AnimatePresence>
             </button>
+            <button
+              type="button"
+              onClick={toggleMenu}
+              title={collapsed ? 'Ouvrir le menu' : 'Fermer le menu'}
+              className="app-nav-link w-full"
+            >
+              {collapsed ? <PanelLeftOpen size={18} className="flex-shrink-0" /> : <PanelLeftClose size={18} className="flex-shrink-0" />}
+              {!collapsed && <span>Fermer le menu</span>}
+            </button>
           </div>
-
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="absolute -right-3 top-7 w-6 h-6 bg-white border border-slate-200 rounded-full flex items-center justify-center text-slate-500 hover:text-blue-800 hover:bg-slate-50 transition-all shadow-sm z-10"
-            style={{ left: collapsed ? 64 : 248 }}
-            aria-label={collapsed ? 'Déplier le menu' : 'Replier le menu'}
-          >
-            {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
-          </button>
         </motion.aside>
 
         <div className="flex-1 flex flex-col overflow-hidden min-w-0">
           <header className="app-topbar">
-            <div>
-              <p className="page-kicker">Espace personnel</p>
-              <p className="text-slate-800 font-semibold text-sm leading-tight">Suivi de vos candidatures</p>
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={toggleMenu}
+                className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-slate-200 bg-white text-[#1B4F8A] hover:bg-blue-50 shadow-sm shrink-0"
+                aria-label={collapsed ? 'Ouvrir le menu' : 'Fermer le menu'}
+                title={collapsed ? 'Ouvrir le menu' : 'Fermer le menu'}
+              >
+                {collapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={18} />}
+              </button>
+              <div className="min-w-0">
+                <p className="page-kicker">Espace personnel</p>
+                <p className="text-slate-800 font-semibold text-sm leading-tight truncate">Suivi de vos candidatures</p>
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <Link

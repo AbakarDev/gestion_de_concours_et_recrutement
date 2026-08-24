@@ -28,7 +28,13 @@ export default function LoginScreen({ navigation }: { navigation: any }) {
     try {
       await login(email.trim(), password);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Identifiants incorrects ou compte inactif.');
+      if (!err.response) {
+        setError(
+          'Impossible de joindre l’API. Vérifiez que le PC lance : php artisan serve --host=0.0.0.0 --port=8001 (même Wi‑Fi).',
+        );
+      } else {
+        setError(err.response?.data?.message || 'Identifiants incorrects ou compte inactif.');
+      }
     } finally {
       setBusy(false);
     }
@@ -39,9 +45,9 @@ export default function LoginScreen({ navigation }: { navigation: any }) {
       <View style={{ height: insets.top, backgroundColor: colors.navyDark }} />
       <FlagBar />
       <View style={styles.hero}>
-        <Text style={styles.kicker}>Ministère de la Fonction Publique</Text>
-        <Text style={styles.heroTitle}>E-Concours Tchad</Text>
-        <Text style={styles.heroSub}>Espace candidat — même API que le portail web.</Text>
+        <Text style={styles.kicker}>Portail public — concours et recrutements</Text>
+        <Text style={styles.heroTitle}>e-CR Tchad</Text>
+        <Text style={styles.heroSub}>Espace candidat — concours et recrutements.</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.body} keyboardShouldPersistTaps="handled">
@@ -69,7 +75,7 @@ export default function LoginScreen({ navigation }: { navigation: any }) {
         <Pressable onPress={() => navigation.navigate('Register')} style={{ marginTop: 18 }}>
           <Text style={styles.link}>Pas encore de compte ? Créer un compte candidat</Text>
         </Pressable>
-        <Text style={styles.footer}>© 2026 Ministère de la Fonction Publique — République du Tchad</Text>
+        <Text style={styles.footer}>© 2026 Portail Concours et Recrutements Tchad — PFE</Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );

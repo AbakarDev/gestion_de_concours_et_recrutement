@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "E-Concours Tchad",
+    "name": "e-CR Tchad",
     "slug": "econconcours-tchad",
     "scheme": "econconcours",
     "version": "1.0.0",
@@ -27,6 +27,15 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Le Portail Concours et Recrutements Tchad a besoin d’accéder à vos photos pour la photo d’identité."
+        }
+      ],
+      "expo-document-picker"
+    ]
   }
 }

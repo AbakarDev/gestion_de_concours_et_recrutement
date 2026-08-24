@@ -206,16 +206,16 @@ export default function JobOffers() {
                       <StatusBadge status={offer.status || 'draft'} label={offer.status_label} />
                     </td>
                     <td className="text-right">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-1.5">
                         {offer.status === 'draft' && (
-                          <button onClick={() => handlePublishToggle(offer)} title="Publier l'offre" className="p-2 text-slate-500 hover:text-emerald-700 rounded-xl hover:bg-slate-100 transition-colors">
+                          <button onClick={() => handlePublishToggle(offer)} title="Publier l'offre" className="p-2 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors">
                             <Eye size={16} />
                           </button>
                         )}
-                        <button onClick={() => { setEditingJobOffer(offer); setIsModalOpen(true); }} className="p-2 text-slate-500 hover:text-blue-700 rounded-xl hover:bg-slate-100 transition-colors">
+                        <button onClick={() => { setEditingJobOffer(offer); setIsModalOpen(true); }} title="Modifier" className="p-2 rounded-lg bg-blue-50 text-[#1B4F8A] hover:bg-blue-100 transition-colors">
                           <Edit2 size={16} />
                         </button>
-                        <button onClick={() => handleDelete(offer.id)} className="p-2 text-slate-500 hover:text-red-600 rounded-xl hover:bg-slate-100 transition-colors">
+                        <button onClick={() => handleDelete(offer.id)} title="Supprimer" className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
                           <Trash2 size={16} />
                         </button>
                       </div>

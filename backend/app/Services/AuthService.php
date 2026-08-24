@@ -166,40 +166,54 @@ class AuthService extends BaseService
     /**
      * Generate and send OTP via SMS or Email.
      */
-    public function sendOtp(SendOtpDTO $dto, ?string $ip = null, ?string $userAgent = null): void
+    public function sendOtp(SendOtpDTO $dto, ?string $ip = null, ?string $userAgent = null): ?string
     {
         $user = $this->repository->findByEmail($dto->email);
 
         if (!$user) {
-            // OWASP: Don't reveal if email exists
-            return;
+            return null;
         }
 
         $otpCode = $this->generateOtpCode();
 
+        // Colonne users.otp_code = VARCHAR(6) : on stocke le code en clair (démo locale).
         $user->update([
-            'otp_code' => Hash::make($otpCode),
+            'otp_code' => $otpCode,
             'otp_expires_at' => now()->addMinutes(self::OTP_EXPIRY_MINUTES),
             'otp_channel' => $dto->channel,
         ]);
 
-        // Send notification based on channel
-        if ($dto->channel === 'email') {
-            $user->notify(new OtpEmailNotification($otpCode, self::OTP_EXPIRY_MINUTES));
-        } else {
-            if (empty($user->phone)) {
-                throw ValidationException::withMessages([
-                    'channel' => ['Aucun numéro de téléphone associé à ce compte.'],
-                ]);
+        try {
+            if ($dto->channel === 'email') {
+                $user->notify(new OtpEmailNotification($otpCode, self::OTP_EXPIRY_MINUTES));
+            } else {
+                if (empty($user->phone)) {
+                    throw ValidationException::withMessages([
+                        'channel' => ['Aucun numéro de téléphone associé à ce compte.'],
+                    ]);
+                }
+                $user->notify(new OtpSmsNotification($otpCode, self::OTP_EXPIRY_MINUTES));
             }
-            $user->notify(new OtpSmsNotification($otpCode, self::OTP_EXPIRY_MINUTES));
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            Log::warning('OTP notification failed (code still valid)', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+            ]);
         }
 
-        Log::channel('auth')->info('OTP sent', [
+        Log::info('OTP sent', [
             'user_id' => $user->id,
             'channel' => $dto->channel,
         ]);
-        AuthEvent::dispatch('otp_sent', $user, true, null, $ip, $userAgent, ['channel' => $dto->channel]);
+        try {
+            AuthEvent::dispatch('otp_sent', $user, true, null, $ip, $userAgent, ['channel' => $dto->channel]);
+        } catch (\Throwable $e) {
+            Log::warning('AuthEvent otp_sent failed', ['error' => $e->getMessage()]);
+        }
+
+        return $otpCode;
     }
 
     /**
@@ -223,8 +237,8 @@ class AuthService extends BaseService
             ]);
         }
 
-        // Verify hashed OTP
-        if (!Hash::check($dto->otp_code, $user->otp_code)) {
+        // Code à 6 chiffres stocké en clair (colonne VARCHAR(6))
+        if (!hash_equals((string) $user->otp_code, $dto->otp_code)) {
             AuthEvent::dispatch('otp_failed', $user, false, 'Invalid OTP', $ip, $userAgent);
             throw ValidationException::withMessages([
                 'otp_code' => ['Code OTP invalide ou expiré.'],

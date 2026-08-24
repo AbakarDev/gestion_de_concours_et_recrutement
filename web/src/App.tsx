@@ -9,6 +9,10 @@ import UnauthorizedPage from './pages/public/Unauthorized';
 import NotFoundPage from './pages/public/NotFound';
 import LoginPage from './pages/auth/Login';
 import RegisterPage from './pages/auth/Register';
+import ForgotPasswordPage from './pages/auth/ForgotPassword';
+import ResetPasswordPage from './pages/auth/ResetPassword';
+import OtpLoginPage from './pages/auth/OtpLogin';
+import VerifyConvocationPage from './pages/public/VerifyConvocation';
 import AdminDashboard from './pages/admin/Dashboard';
 import CompetitionsPage from './pages/admin/Competitions';
 import JobOffersPage from './pages/admin/JobOffers';
@@ -47,6 +51,10 @@ function AppRoutes() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/login-otp" element={<OtpLoginPage />} />
+        <Route path="/verify-convocation" element={<VerifyConvocationPage />} />
 
         {/* ── Dashboard admin : accessible à tout le personnel ── */}
         <Route element={<ProtectedRoute allowedRoles={StaffRoles} />}>

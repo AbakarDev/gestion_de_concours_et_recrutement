@@ -188,7 +188,7 @@ export default function Competitions() {
               onChange={(e) => { setDepartmentFilter(e.target.value); setPage(1); }}
               className="input-field w-40"
             >
-              <option value="">Tous les ministères</option>
+              <option value="">Toutes les organisations</option>
               {departments.map((dep) => (
                 <option key={dep.id} value={dep.id}>{dep.name}</option>
               ))}
@@ -214,7 +214,7 @@ export default function Competitions() {
             <thead>
               <tr>
                 <th>Référence</th>
-                <th>Titre / Ministère</th>
+                <th>Titre / Organisation</th>
                 <th>Période</th>
                 <th>Quota</th>
                 <th>Statut</th>
@@ -264,33 +264,33 @@ export default function Competitions() {
                       </div>
                     </td>
                     <td className="text-right">
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-end gap-1.5">
                         {canManage && comp.status === 'draft' && (
-                          <button onClick={() => handlePublishToggle(comp)} title="Publier" className="p-2 text-slate-500 hover:text-emerald-700 rounded-xl hover:bg-slate-100 transition-colors">
+                          <button onClick={() => handlePublishToggle(comp)} title="Publier" className="p-2 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors">
                             <Eye size={16} />
                           </button>
                         )}
                         {canManage && ['published', 'open'].includes(comp.status) && (
                           <>
-                            <button onClick={() => handlePublishToggle(comp)} title="Dépublier" className="p-2 text-slate-500 hover:text-amber-700 rounded-xl hover:bg-slate-100 transition-colors">
+                            <button onClick={() => handlePublishToggle(comp)} title="Dépublier" className="p-2 rounded-lg bg-amber-50 text-amber-700 hover:bg-amber-100 transition-colors">
                               <Undo2 size={16} />
                             </button>
-                            <button onClick={() => handleClose(comp)} title="Clôturer" className="p-2 text-slate-500 hover:text-red-600 rounded-xl hover:bg-slate-100 transition-colors">
+                            <button onClick={() => handleClose(comp)} title="Clôturer" className="p-2 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 transition-colors">
                               <EyeOff size={16} />
                             </button>
                           </>
                         )}
                         {canManage && ['closed', 'evaluating'].includes(comp.status) && !comp.results_published_at && (
-                          <button onClick={() => handlePublishResults(comp)} title="Publier les résultats" className="p-2 text-slate-500 hover:text-blue-700 rounded-xl hover:bg-slate-100 transition-colors">
+                          <button onClick={() => handlePublishResults(comp)} title="Publier les résultats" className="p-2 rounded-lg bg-blue-50 text-blue-800 hover:bg-blue-100 transition-colors">
                             <Lock size={16} />
                           </button>
                         )}
                         {canManage && (
                           <>
-                        <button onClick={() => { setEditingCompetition(comp); setIsModalOpen(true); }} className="p-2 text-slate-500 hover:text-blue-700 rounded-xl hover:bg-slate-100 transition-colors">
+                        <button onClick={() => { setEditingCompetition(comp); setIsModalOpen(true); }} title="Modifier" className="p-2 rounded-lg bg-blue-50 text-[#1B4F8A] hover:bg-blue-100 transition-colors">
                           <Edit2 size={16} />
                         </button>
-                        <button onClick={() => handleDelete(comp.id)} className="p-2 text-slate-500 hover:text-red-600 rounded-xl hover:bg-slate-100 transition-colors">
+                        <button onClick={() => handleDelete(comp.id)} title="Supprimer" className="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors">
                           <Trash2 size={16} />
                         </button>
                           </>

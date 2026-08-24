@@ -229,7 +229,7 @@ export default function CandidateProfile() {
       <PageHeader
         kicker="Dossier administratif"
         title="Mon dossier de candidature"
-        subtitle="Renseignez votre état civil et votre cursus. Le CV officiel est généré par la plateforme, au gabarit unique du ministère."
+        subtitle="Renseignez votre état civil et votre cursus. Le CV officiel est généré par la plateforme, au gabarit unique du portail."
       />
 
       <div className="flex flex-wrap gap-2">

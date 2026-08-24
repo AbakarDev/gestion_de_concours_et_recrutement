@@ -8,6 +8,7 @@ export type ApplicationRow = {
   submitted_at?: string | null;
   rejection_reason?: string | null;
   payment?: { required?: boolean; confirmed?: boolean; status?: string | null; montant?: number | null };
+  convocation_url?: string | null;
   job_offer?: {
     id?: number;
     title?: string;

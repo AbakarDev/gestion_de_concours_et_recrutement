@@ -33,7 +33,7 @@
     @php
         $competition = $application->jobOffer->competition ?? null;
         $ministry = $competition?->ministry
-            ?: ($competition?->department?->name ?? 'Ministère de la Fonction Publique');
+            ?: ($competition?->department?->name ?? 'Organisation partenaire');
         $center = $convocation->examCenter;
         $centerLabel = $center
             ? trim(($center->nom ?? $center->name ?? '').($center->ville ? ' — '.$center->ville : ''))
@@ -52,7 +52,7 @@
         <div class="kicker">République du Tchad · Unité — Travail — Progrès</div>
         <div class="title">Convocation aux épreuves</div>
         <div class="subtitle">{{ $ministry }}</div>
-        <div class="motto">Plateforme E-Concours Tchad</div>
+        <div class="motto">Portail Concours et Recrutements Tchad</div>
     </div>
 
     <p>Le candidat désigné ci-dessous est convoqué pour participer aux épreuves du concours :</p>
@@ -111,7 +111,7 @@
 
     <div class="footer">
         Document généré électroniquement le {{ optional($convocation->generated_at)->format('d/m/Y à H:i') }}
-        — Ministère de la Fonction Publique · République du Tchad
+        — Portail Concours et Recrutements Tchad · République du Tchad
     </div>
 </body>
 </html>

@@ -6,6 +6,8 @@ export interface User {
   nin?: string;
   phone?: string;
   roles: string[];
+  permissions?: string[];
+  direct_permissions?: string[];
   is_active?: boolean;
   created_at?: string;
 }

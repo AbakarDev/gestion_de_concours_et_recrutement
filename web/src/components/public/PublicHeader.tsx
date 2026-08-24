@@ -20,14 +20,14 @@ export default function PublicHeader({ right, homePrimary = false }: PublicHeade
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
           <Link to="/" className="flex items-center gap-3 min-w-0">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-800 to-blue-600 flex items-center justify-center shadow-md shadow-blue-900/20 shrink-0">
-              <span className="text-white font-bold text-xs tracking-tight">RT</span>
+              <span className="text-white font-bold text-[10px] tracking-tight">eCR</span>
             </div>
             <div className="min-w-0">
               <p className="text-[14px] font-bold text-slate-900 leading-none tracking-tight truncate">
-                E-Concours <span className="text-blue-700">Tchad</span>
+                e-CR <span className="text-blue-700">Tchad</span>
               </p>
               <p className="text-[10px] uppercase font-semibold text-slate-400 tracking-[0.14em] mt-1 truncate">
-                République du Tchad
+                Portail concours & recrutements
               </p>
             </div>
           </Link>

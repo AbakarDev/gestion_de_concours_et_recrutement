@@ -65,8 +65,8 @@ export default function DispatchPage() {
             <div>
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-lg font-bold text-slate-900">{comp.title}</h3>
-                <span className={`px-2 py-1 rounded text-xs font-medium ${comp.status === 'published' ? 'bg-green-500/20 text-green-400' : 'bg-orange-500/20 text-orange-400'}`}>
-                  {comp.status === 'published' ? 'Publié' : 'Brouillon'}
+                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${comp.status === 'published' || comp.status === 'open' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800'}`}>
+                  {comp.status_label || (comp.status === 'published' ? 'Publié' : 'Brouillon')}
                 </span>
               </div>
               <p className="text-sm text-slate-500 mb-6">{comp.description}</p>
@@ -76,7 +76,7 @@ export default function DispatchPage() {
               <button
                 onClick={() => handleDispatch(comp.id)}
                 disabled={dispatching === comp.id}
-                className="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-blue-600/50 disabled:cursor-not-allowed text-slate-800 font-semibold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2"
+                className="btn-primary w-full py-3 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               >
                 {dispatching === comp.id ? (
                   <>

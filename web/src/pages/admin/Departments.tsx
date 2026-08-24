@@ -102,7 +102,7 @@ export default function DepartmentsPage() {
       <PageHeader
         kicker="Organisation"
         title="Départements"
-        subtitle="Gérez les ministères et institutions."
+        subtitle="Gérez les organisations et institutions partenaires."
         actions={canManage ? (
           <button onClick={handleOpenAdd} className="btn-primary flex items-center gap-2">
             <Plus size={18} />
@@ -180,7 +180,7 @@ export default function DepartmentsPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none placeholder-slate-400"
-                  placeholder="Ex: Ministère de l'Éducation Nationale"
+                  placeholder="Ex: Université de N'Djaména"
                 />
               </div>
 
@@ -200,14 +200,14 @@ export default function DepartmentsPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors"
+                  className="btn-ghost text-sm"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-4 py-2 text-sm font-medium text-slate-800 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-50"
+                  className="btn-primary text-sm disabled:opacity-50"
                 >
                   {submitting ? 'Enregistrement...' : 'Enregistrer'}
                 </button>

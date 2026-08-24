@@ -25,7 +25,10 @@ class RankingController extends Controller
 
         $applications = Application::with('scores')
             ->where('job_offer_id', $jobOfferId)
-            ->whereIn('status', ['evaluated', 'accepted'])
+            ->where(function ($q) {
+                $q->whereIn('status', ['evaluated', 'accepted'])
+                    ->orWhereHas('scores');
+            })
             ->get();
 
         $ranked = $applications->map(function ($app) use ($isJury) {
@@ -48,7 +51,10 @@ class RankingController extends Controller
 
             return $row;
         })
-        ->sortByDesc('average_score')
+        // Notes d'abord (desc), sans note en fin de liste
+        ->sort(function ($a, $b) {
+            return ($b['average_score'] ?? -1) <=> ($a['average_score'] ?? -1);
+        })
         ->values();
 
         // Add rank number

@@ -8,10 +8,21 @@ import ApplicationDetailScreen from '../screens/ApplicationDetailScreen';
 import OffersScreen from '../screens/OffersScreen';
 import OfferApplyScreen from '../screens/OfferApplyScreen';
 import DossierScreen from '../screens/DossierScreen';
+import NotificationsScreen from '../screens/NotificationsScreen';
 
 const Tab = createBottomTabNavigator();
 const AppsStack = createNativeStackNavigator();
 const OffersStack = createNativeStackNavigator();
+const HomeStack = createNativeStackNavigator();
+
+function HomeNavigator() {
+  return (
+    <HomeStack.Navigator screenOptions={{ headerShown: false }}>
+      <HomeStack.Screen name="HomeDash" component={DashboardScreen} />
+      <HomeStack.Screen name="Notifications" component={NotificationsScreen} />
+    </HomeStack.Navigator>
+  );
+}
 
 function ApplicationsNavigator() {
   return (
@@ -50,7 +61,7 @@ export default function MainTabs() {
     >
       <Tab.Screen
         name="Accueil"
-        component={DashboardScreen}
+        component={HomeNavigator}
         options={{
           tabBarIcon: ({ color, size }) => <Ionicons name="grid-outline" size={size} color={color} />,
         }}

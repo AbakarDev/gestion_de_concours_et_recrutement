@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="brand">République du Tchad — E-Concours</div>
+        <div class="brand">République du Tchad — Portail Concours et Recrutements</div>
         <h1>{{ $title }}</h1>
     </div>
 

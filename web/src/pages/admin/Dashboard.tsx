@@ -37,7 +37,7 @@ const AdminDashboard: React.FC = () => {
 
   const stats = [
     { label: 'Concours', value: comps?.length ?? 0, icon: Trophy, index: 0 },
-    { label: 'Ministères', value: depts?.length ?? 0, icon: Building2, index: 1 },
+    { label: 'Organisations', value: depts?.length ?? 0, icon: Building2, index: 1 },
     { label: 'Postes à pourvoir', value: jobs?.reduce((acc: number, j: any) => acc + j.positions_count, 0) ?? 0, icon: Briefcase, index: 2 },
     { label: 'Candidatures', value: apps?.length ?? 0, icon: FileText, index: 3 },
   ];
@@ -138,7 +138,7 @@ const AdminDashboard: React.FC = () => {
             <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-800 flex items-center justify-center">
               <Building2 size={16} />
             </div>
-            <h3 className="text-slate-800 font-semibold text-sm">Ministères & départements</h3>
+            <h3 className="text-slate-800 font-semibold text-sm">Organisations & départements</h3>
           </div>
         </div>
         {!depts || depts.length === 0 ? (

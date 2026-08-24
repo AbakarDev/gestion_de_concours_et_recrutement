@@ -3,11 +3,10 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class OtpEmailNotification extends Notification implements ShouldQueue
+class OtpEmailNotification extends Notification
 {
     use Queueable;
 

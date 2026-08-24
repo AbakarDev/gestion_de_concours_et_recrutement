@@ -37,7 +37,7 @@
     <div class="header">
         <div class="kicker">République du Tchad · Unité — Travail — Progrès</div>
         <div class="title">Curriculum vitae administratif</div>
-        <div class="motto">Ministère de la Fonction Publique · Plateforme E-Concours Tchad</div>
+        <div class="motto">Portail Concours et Recrutements Tchad</div>
     </div>
 
     <table class="identity">
@@ -124,7 +124,7 @@
     @endif
 
     <div class="footer">
-        Document généré par la plateforme E-Concours Tchad le {{ now()->format('d/m/Y à H:i') }}.
+        Document généré par le Portail Concours et Recrutements Tchad le {{ now()->format('d/m/Y à H:i') }}.
         Ce curriculum vitae suit le gabarit unique de l’administration — il ne peut pas être mis en page librement.
         @if($application)
             Dossier n° {{ $application->application_number }}.

@@ -24,7 +24,7 @@ class ExportController extends Controller
         ])->all();
 
         return $this->download($request, 'concours', [
-            'Référence', 'Titre', 'Ministère', 'Quota', 'Début', 'Fin', 'Statut',
+            'Référence', 'Titre', 'Organisation', 'Quota', 'Début', 'Fin', 'Statut',
         ], $rows, 'Liste des concours');
     }
 
@@ -90,7 +90,10 @@ class ExportController extends Controller
 
         $applications = Application::with('scores')
             ->where('job_offer_id', $jobOfferId)
-            ->whereIn('status', ['evaluated', 'accepted'])
+            ->where(function ($q) {
+                $q->whereIn('status', ['evaluated', 'accepted'])
+                    ->orWhereHas('scores');
+            })
             ->get();
 
         $ranked = $applications->map(function ($app) {
@@ -104,7 +107,9 @@ class ExportController extends Controller
                 'scores_count' => $scores->count(),
                 'status_label' => $app->status->label(),
             ];
-        })->sortByDesc('average_score')->values();
+        })->sort(function ($a, $b) {
+            return ($b['average_score'] ?? -1) <=> ($a['average_score'] ?? -1);
+        })->values();
 
         $headers = $isJury
             ? ['Rang', 'N° Anonymat', 'Moyenne /20', 'Épreuves', 'Statut']

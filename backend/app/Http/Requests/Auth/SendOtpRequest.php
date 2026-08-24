@@ -14,7 +14,7 @@ class SendOtpRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email'   => ['required', 'string', 'email', 'max:255', 'exists:users,email'],
+            'email'   => ['required', 'string', 'email', 'max:255'],
             'channel' => ['required', 'string', 'in:sms,email'],
         ];
     }
@@ -23,7 +23,7 @@ class SendOtpRequest extends FormRequest
     {
         return [
             'email.required' => 'L\'adresse email est obligatoire.',
-            'email.exists'   => 'Aucun compte associé à cette adresse email.',
+            'email.email'    => 'L\'adresse email doit être valide.',
             'channel.in'     => 'Le canal doit être "sms" ou "email".',
         ];
     }

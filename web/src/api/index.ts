@@ -22,9 +22,21 @@ export const authApi = {
   logout: () => api.post('/auth/logout'),
   refresh: (refresh_token: string) =>
     axios.post<ApiResponse<{ user: User; access_token: string; refresh_token: string }>>(
-      `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'}/auth/refresh`,
+      `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8001/api'}/auth/refresh`,
       { refresh_token }
     ),
+  forgotPassword: (email: string) =>
+    api.post<ApiResponse<null>>('/auth/forgot-password', { email }),
+  resetPassword: (data: { email: string; token: string; password: string; password_confirmation: string }) =>
+    api.post<ApiResponse<null>>('/auth/reset-password', data),
+  sendOtp: (email: string, channel: 'email' | 'sms' = 'email') =>
+    api.post<ApiResponse<null>>('/auth/otp/send', { email, channel }),
+  verifyOtp: (email: string, otp_code: string, channel: 'email' | 'sms' = 'email') =>
+    api.post<ApiResponse<{ user: User; access_token: string; refresh_token: string }>>('/auth/otp/verify', {
+      email,
+      otp_code,
+      channel,
+    }),
 };
 
 export const departmentsApi = {
@@ -135,8 +147,19 @@ export const usersApi = {
     phone?: string;
     role: string;
   }) => api.post<ApiResponse<User>>('/users', data),
+  update: (id: number, data: {
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    phone?: string | null;
+    password?: string;
+  }) => api.put<ApiResponse<User>>(`/users/${id}`, data),
   updateRole: (id: number, role: string) => api.put<ApiResponse<User>>(`/users/${id}/role`, { role }),
+  syncPermissions: (id: number, permissions: string[]) =>
+    api.put<ApiResponse<User>>(`/users/${id}/permissions`, { permissions }),
   toggleActive: (id: number) => api.patch<ApiResponse<User>>(`/users/${id}/active`),
+  remove: (id: number) => api.delete(`/users/${id}`),
+  permissionsCatalog: () => api.get<ApiResponse<{ permissions: string[]; roles: Record<string, string[]> }>>('/permissions'),
 };
 
 export const settingsApi = {

@@ -220,10 +220,13 @@ class AuthController extends Controller
      */
     public function sendOtp(SendOtpRequest $request): JsonResponse
     {
-        $dto = SendOtpDTO::fromRequest($request);
         $this->authService->sendOtp($dto, $request->ip(), $request->userAgent());
 
-        return $this->successResponse(null, 'Code de vérification envoyé.');
+        // Jamais renvoyer le code dans la réponse HTTP : seul le canal e-mail/SMS du titulaire le reçoit.
+        return $this->successResponse(
+            null,
+            'Si un compte existe pour cette adresse, un code de vérification a été envoyé.'
+        );
     }
 
     // ─── Verify OTP ─────────────────────────────────────────────────

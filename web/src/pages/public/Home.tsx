@@ -12,7 +12,8 @@ import type { Competition, JobOffer } from '../../types';
 import { notify } from '../../lib/feedback';
 
 const SERVICES = [
-  { icon: FileText, title: 'Dépôt en ligne', desc: 'Soumettez votre dossier complet (CV, diplômes, NNI) depuis un ordinateur ou un téléphone.' },
+  { icon: FileText, title: 'Dépôt en ligne', desc: 'Soumettez votre dossier (CV, diplômes, pièces) depuis un ordinateur ou un téléphone.' },
+  { icon: Briefcase, title: 'Concours et offres', desc: 'Consultez les concours et postes de recrutement publiés sur le portail.' },
   { icon: Bell, title: 'Convocations', desc: 'Téléchargez votre convocation PDF avec QR de vérification depuis votre espace.' },
   { icon: ShieldCheck, title: 'Anonymat du jury', desc: 'Le jury ne voit que le numéro d’anonymat. Les notes sont scellées par un cachet HMAC.' },
   { icon: CheckCircle, title: 'Suivi du dossier', desc: 'Consultez le statut à chaque étape : soumis, en instruction, accepté, évalué.' },
@@ -21,8 +22,8 @@ const SERVICES = [
 const PROVINCES = ['N\'Djaména', 'Moundou', 'Abéché', 'Sarh', 'Faya'];
 
 const DEFAULT_SETTINGS = {
-  platform_name: 'E-Concours Tchad',
-  platform_subtitle: 'Plateforme gouvernementale de recrutement',
+  platform_name: 'Portail Concours et Recrutements Tchad',
+  platform_subtitle: 'Plateforme web et mobile pour la gestion des concours et des recrutements au Tchad',
   contact_email: 'contact@recrute.td',
   contact_phone: '+235 22 51 00 00',
   support_message: 'Pour toute assistance, contactez la Direction des concours.',
@@ -96,8 +97,6 @@ export default function Home() {
     else navigate('/admin');
   };
 
-  const brand = settings.platform_name || DEFAULT_SETTINGS.platform_name;
-
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -112,13 +111,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[72px] flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-800 to-blue-600 flex items-center justify-center shadow-md shadow-blue-900/20">
-              <span className="text-white font-bold text-sm tracking-tight">RT</span>
+              <span className="text-white font-bold text-[11px] tracking-tight">eCR</span>
             </div>
             <div>
               <p className="text-[15px] font-bold text-slate-900 leading-none tracking-tight">
-                {brand.toUpperCase().includes('TCHAD') ? <>E-Concours <span className="text-blue-700">Tchad</span></> : brand}
+                e-CR <span className="text-blue-700">Tchad</span>
               </p>
-              <p className="text-[10px] uppercase font-semibold text-slate-400 tracking-[0.16em] mt-1">République du Tchad</p>
+              <p className="text-[10px] uppercase font-semibold text-slate-400 tracking-[0.16em] mt-1">Portail concours & recrutements</p>
             </div>
           </Link>
           <nav className="hidden lg:flex items-center gap-7 text-[13px] font-semibold text-slate-600">
@@ -174,7 +173,7 @@ export default function Home() {
               className="home-kicker mb-5 inline-flex items-center gap-2"
             >
               <span className="w-8 h-px bg-accent-500" />
-              Ministère de la Fonction Publique
+              Portail public — concours et recrutements
               <span className="w-8 h-px bg-accent-500" />
             </motion.p>
             <motion.h1
@@ -183,8 +182,8 @@ export default function Home() {
               transition={{ delay: 0.08 }}
               className="text-4xl md:text-[56px] font-bold text-white tracking-tight leading-[1.12] mb-5"
             >
-              Recrutement public,<br className="hidden md:block" />
-              <span className="text-accent-400">équitable et numérique</span>
+              Concours et recrutements,<br className="hidden md:block" />
+              <span className="text-accent-400">un portail web et mobile</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
@@ -192,7 +191,7 @@ export default function Home() {
               transition={{ delay: 0.16 }}
               className="max-w-2xl mx-auto text-base md:text-lg text-blue-100/85 mb-10 leading-relaxed"
             >
-              {settings.platform_subtitle}. Concours publiés, dossiers instruits, copies anonymes, convocations sécurisées.
+              {settings.platform_subtitle}. Concours publiés, dossiers suivis, convocations vérifiables.
             </motion.p>
             <motion.form
               initial={{ opacity: 0, y: 16 }}
@@ -207,7 +206,7 @@ export default function Home() {
                   type="text"
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  placeholder="Poste, concours ou ministère…"
+                  placeholder="Concours, offre ou organisation…"
                   className="w-full text-slate-800 outline-none placeholder-slate-400 bg-transparent text-sm"
                 />
               </div>
@@ -234,7 +233,7 @@ export default function Home() {
             {[
               { icon: Briefcase, val: loading ? '...' : stats.active_competitions, label: 'Concours ouverts' },
               { icon: Users, val: loading ? '...' : stats.total_candidates, label: 'Candidats inscrits' },
-              { icon: Building2, val: loading ? '...' : stats.departments_count, label: 'Ministères' },
+              { icon: Building2, val: loading ? '...' : stats.departments_count, label: 'Organisations' },
               { icon: TrendingUp, val: loading ? '...' : stats.total_jobs, label: 'Postes à pourvoir' },
             ].map(({ icon: Icon, val, label }) => (
               <div key={label} className="home-stat">
@@ -310,7 +309,7 @@ export default function Home() {
                     <h3 className="font-bold text-slate-900 text-[15px] leading-snug mb-1">{c.title}</h3>
                     <p className="text-[11px] font-mono text-slate-400 mb-4">{c.reference}</p>
                     <div className="space-y-1.5 mb-5 text-sm text-slate-500 flex-1">
-                      <div className="flex items-center gap-2"><Building2 size={14} className="text-blue-700"/>{c.department_name || 'Ministère'}</div>
+                      <div className="flex items-center gap-2"><Building2 size={14} className="text-blue-700"/>{c.department_name || 'Organisation'}</div>
                       <div className="flex items-center gap-2"><Users size={14} className="text-blue-700"/>{c.quota} places</div>
                     </div>
                     <Link
@@ -408,7 +407,7 @@ export default function Home() {
                 {[
                   { icon: Phone, title: 'Téléphone', info: settings.contact_phone, sub: 'Lun–Ven 8h–17h' },
                   { icon: Mail, title: 'Email', info: settings.contact_email, sub: 'Réponse sous 48h' },
-                  { icon: MapPin, title: 'Adresse', info: 'Ministère de la Fonction Publique', sub: 'N\'Djaména, Tchad' },
+                  { icon: MapPin, title: 'Adresse', info: 'N’Djaména', sub: 'République du Tchad' },
                 ].map(({ icon: Icon, title, info, sub }) => (
                   <div key={title} className="flex gap-3">
                     <div className="w-10 h-10 rounded-lg bg-white border border-slate-200 text-blue-800 flex items-center justify-center shrink-0">
@@ -453,8 +452,8 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
           <div className="md:col-span-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white text-xs font-bold">RT</div>
-              <span className="text-white font-semibold">{brand}</span>
+              <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white text-[10px] font-bold">eCR</div>
+              <span className="text-white font-semibold">e-CR Tchad</span>
             </div>
             <p className="mb-4 max-w-sm leading-relaxed text-[13px]">{settings.platform_subtitle}</p>
             <p className="text-[13px]">{settings.contact_email} · {settings.contact_phone}</p>
@@ -464,6 +463,7 @@ export default function Home() {
             <h4 className="text-white font-semibold mb-3 text-xs uppercase tracking-wider">Candidats</h4>
             <ul className="space-y-2 text-[13px]">
               {settings.registration_enabled && <li><Link to="/register" className="hover:text-white">Créer un compte</Link></li>}
+              <li><Link to="/verify-convocation" className="hover:text-white">Vérifier une convocation</Link></li>
               <li><Link to="/login" className="hover:text-white">Se connecter</Link></li>
               <li><a href="#offres" className="hover:text-white">Consulter les concours</a></li>
             </ul>
@@ -479,7 +479,7 @@ export default function Home() {
         </div>
         <div className="border-t border-white/10">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5 flex flex-col md:flex-row justify-between items-center gap-3 text-[12px]">
-            <p>© 2026 Ministère de la Fonction Publique — République du Tchad.</p>
+            <p>© 2026 Portail Concours et Recrutements Tchad — démonstration PFE.</p>
             <div className="flex gap-1" aria-label="Drapeau du Tchad">
               <div className="w-6 h-4 bg-blue-800 rounded-[1px]"/>
               <div className="w-6 h-4 bg-accent-500 rounded-[1px]"/>
