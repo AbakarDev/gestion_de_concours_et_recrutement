@@ -75,6 +75,7 @@ DOCUMENTATION_SOUTENANCE_PFE.md
 DOCUMENTATION_RAPPORT_UML.md
 
 # ── Divers ───────────────────────────────────────────────
+/package-lock.json
 coverage/
 .turbo/
 .expo/
